@@ -32,6 +32,17 @@ function agentPrompt(cmd, reply) {
     showText(["> " + cmd, "  " + reply], AGENT_OPTS);
 }
 
+// --- performance mode: every section below is a named part. With the "performance" checkbox on,
+// the section that is playing loops until sendSignal('go') moves on at the next bar line, and
+// sendSignal('go', 'solo') jumps to a part by name (see the README for the list). With the checkbox
+// off the waits are inert and the song plays exactly as written, so exports are unchanged. ---
+let openPart = null;
+function part(name) {
+    if (openPart) waitForSignal('go', { loop: 'part', quantize: 'bar' });   // close the previous part: loop it until told to go on
+    definePartStart(name);
+    openPart = name;
+}
+
 // Italo-disco drums: snare on beats 2 & 4, hi-hats on the 2/4 and 3/4 of every beat.
 function italoHats(beats) {
     hihat.steps(4, [ , , fs3, fs3 ].repeat(beats - 1));
@@ -147,6 +158,7 @@ const introKick  = createTrack(0, 4);
 const introHihat = createTrack(1, 4);
 const introBass  = createTrack(3, 4);
 
+part('intro');
 for (let introRep = 0; introRep < 2; introRep++) {
     if (introRep === 1) setVisual('uHero', 1, 2.0);   // second intro round: the lone dancer steps into the spotlight
     introBass.steps(4, [
@@ -170,6 +182,7 @@ for (let introRep = 0; introRep < 2; introRep++) {
 
 // === PART "verse" (bars 9-16, no lead) then PART "chorus" (bars 17-24, adds padlead lead) — progression Dm-F-G-A#-C ===
 for (let rep = 0; rep < 4; rep++) {
+    part(['verse', 'chorus', 'chorus2', 'chorus3'][rep]);
     if (rep >= 1) playPadlead();
     if (rep === 3) playPadleadHarmony();
 
@@ -273,6 +286,7 @@ function introHats() {
 }
 
 // Playthrough 1 - the recorded take (recording armed for this bar)
+part('break');
 playJumpChords();
 introHats();
 introBassLine();
@@ -289,6 +303,7 @@ await introKick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 196
 
 
 // "finale" lead melody (recorded on padlead, ch4), spans bars 33-40
+part('drop');
 createTrack(4).play([[ 0.56, d6(0.44, 69) ],
 [ 0.55, d7(0.46, 74) ],
 [ 1.03, f6(0.41, 70) ],
@@ -361,6 +376,7 @@ for (let r = 0; r < 2; r++) {
 }
 
 // === PART "breakdown" (played twice): warm low-pass pad chords + padlead melody over the beat ===
+part('breakdown');
 for (let f2 = 0; f2 < 2; f2++) {
     // finale2 CHORDS -> WARM PAD (ch6), one octave up, tidied to the 2-beat grid
     warmpad.play([
@@ -849,6 +865,7 @@ createTrack(8).play([
 // === 6 variation rounds (all with drums) ===
 // 1-2: warm pad + lead + intro D bass · 2 adds jumppad · 3-4: italo bass (chords) · 5-6: intro D bass, descending A# C G
 for (let round = 0; round < 6; round++) {
+    part(['finale', 'finale-stabs', 'finale-italo', 'finale-italo2', 'solo', 'ending'][round]);
     if (round === 0) { setVisual('uItalo', 0); setVisual('uRunning', 1, 3.0); }   // finale opens four-on-the-floor; dancers turn sideways into the running man
     if (round === 0) agentPrompt("turn them sideways - running man", "profile stance - stepping on the beat");   // running man move introduced
     if (round === 2) { setVisual('uItalo', 1); setVisual('uRunning', 0, 2.0); }   // italo bass returns → double-time arms; running man ends, camera resumes its orbit
