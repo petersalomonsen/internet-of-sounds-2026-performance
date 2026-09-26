@@ -3,7 +3,7 @@
 Copied from `monstertheme/` in the NEAR repo `ifc2026-concert.gitfactory.testnet`
 (last changed there in e1c63be, 2026-05-31), and ported to Faust under `faust/`.
 **Reference only — nothing here is compiled by the app.** The ports are what the
-concert plays (channels 10–15 in `synth.ts`).
+concert plays (channels 0–4, 7, 8, 10, 11 in `synth.ts`).
 
 - `synth.ts` — the AssemblyScript instruments. They build on the app's
   `synth/waveguide.ts` (`WaveGuide`, `noise()`), `fx/delayline.ts`
@@ -15,15 +15,17 @@ concert plays (channels 10–15 in `synth.ts`).
 
 | original (ch) | port | concert ch |
 |---|---|---|
-| `Kick2`, `Snare2`, `Hihat`, `OpenHihat`, `Tom` ×4, `Cymbal` + `DrumChannel` (2) | `faust/mdrums.dsp` — one kit, same note map | 10 |
-| `Bass` (4) | `faust/mbass.dsp` | 11 |
-| `Guitar` + `GuitarChannel` (3) | `faust/mguitar.dsp` — amp and echo as the channel effect | 12 |
-| `Piano` + `PianoChannel` (0) | `faust/mpiano.dsp` — the 42-stage comb network as the channel effect | 13 |
-| `String` (1) | `faust/mstrings.dsp` | 14 |
-| `Brass` (8) | `faust/mbrass.dsp` | 15 |
+| `Kick2`, `Snare2`, `Hihat`, `OpenHihat`, `Tom` ×4, `Cymbal` + `DrumChannel` (2) | `faust/mdrums.dsp` — one kit, same note map | 0 |
+| `Bass` (4) | `faust/mbass.dsp` | 1 |
+| `Guitar` + `GuitarChannel` (3) | `faust/mguitar.dsp` — amp and echo as the channel effect | 2 |
+| `Piano` + `PianoChannel` (0) | `faust/mpiano.dsp` — the 42-stage comb network as the channel effect | 3 |
+| `Flute` + `FluteChannel` (6) | `faust/mflute.dsp` — echo as the channel effect | 4 |
+| `String` (1) | `faust/mstrings.dsp` | 7 |
+| `Choir` (9) | `faust/mchoir.dsp` | 8 |
+| `Brass` (8) | `faust/mbrass.dsp` | 10 |
+| `PadSynth` + `PadSynthChannel` (7) | `faust/mpadsynth.dsp` — the wavetable embedded as the original computes it | 11 |
 
-Not ported: `TubeLead`, `Flute`, `PadSynth`, `Choir` (no free channel), and the
-song's master chain (EQ, MasterMe).
+Not ported: `TubeLead`, and the song's master chain (EQ, MasterMe).
 
 The shared model is `faust/monster.lib`: the library `WaveGuide` as the app
 computes it — delay = SR/f minus the loop low-pass's phase delay (so it is in
@@ -47,6 +49,9 @@ midisynth, compared sample by sample and per channel:
 | mpiano | ≤ 0.1 dB | 38–43 dB, pre-roll and comb network included |
 | mguitar | ≤ 0.3 dB | 22–31 dB, amp and echo included |
 | mdrums | ≤ 0.2 dB | 35–51 dB per drum (cymbal 18–24: a near-lossless loop at Nyquist) |
+| mchoir | ≤ 0.1 dB | 34–50 dB |
+| mflute | ≤ 0.3 dB (echo off) | pitch within 1 cent, spectrum identical; the self-oscillating loop drifts in phase, so samples decorrelate |
+| mpadsynth | ≤ 0.1 dB | statistical (random oscillator phases by design): pitch exact, centroid within 4 %, same decay |
 
 With the real noise they differ as two noise draws do (the generators are
 statistically the same). Stereo is kept: a voice's two outputs are its left and
@@ -60,14 +65,18 @@ right (javascriptmusic transpiler, PR #246).
   It costs the same burst at note-on as the original (a 4-note chord ≈ 4 ms of
   DSP inside the note-on).
 - **Echo** — the song's echo was global (guitar, toms, flute sent to it). The
-  guitar has it as part of its channel effect, at 0.75 beat of this song's
+  guitar and the flute have it as part of their channel effect, at 0.75 beat of this song's
   125 BPM (0.36 s; the original's 92 BPM gave 0.49 s), with its return
   compensated for the channel's pan law. The toms are dry.
 - **Drum voices** — the original had one voice per drum. A Faust voice runs one
   guide pair set up for the drum its note selects (computing all drums in every
   voice cost ~12× the CPU); a voice changing drum starts quiet.
-- **CPU** — Faust's generated code is ~1.6× the original for the piano (allpass
-  state arrays); the whole concert song renders at ~27% of one core headless.
+- **Flute voices** — 4 instead of the original's 1 (a Faust voice stays busy
+  ~0.1 s after note-off, so a mono voice would drop quick notes).
+- **CPU** — with AssemblyScript's array bounds checks on (as the app compiles),
+  the ports cost 1.6–2.4× the originals; with them off, 2–3× less, except the
+  piano (1.6×: 75 hammer allpasses). The checks on Faust's state arrays are the
+  whole difference. The concert song renders at ~28% of one core headless.
 
 Levels: a Faust voice adds 0.25 per side where the originals add 1.0, so the
 ports multiply by 4; channel volumes in `synth.ts` set the balance.

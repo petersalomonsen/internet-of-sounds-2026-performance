@@ -136,6 +136,20 @@ with {
     mag = sqrt(rh * rh + ih * ih);
     phaseSamples = 0 - (atan2(ih, rh) / (2 * ma.PI)) * (SR / f);
 };
+// The same for any RBJ filter (hp 0/1, Q q).
+response(hp, fc, q, f, k) = ba.selectn(2, k, phaseSamples, mag)
+with {
+    b0 = rbj(hp, fc, q, 0); b1 = rbj(hp, fc, q, 1); b2 = rbj(hp, fc, q, 2);
+    a1 = rbj(hp, fc, q, 3); a2 = rbj(hp, fc, q, 4);
+    w = 2 * ma.PI * f / SR;
+    c1 = cos(-w); c2 = cos(-2 * w); s1 = sin(-w); s2 = sin(-2 * w);
+    rz = b0 + b1 * c1 + b2 * c2; iz = b1 * s1 + b2 * s2;
+    rp = 1 + a1 * c1 + a2 * c2; ip = a1 * s1 + a2 * s2;
+    d = rp * rp + ip * ip;
+    rh = (rz * rp + iz * ip) / d; ih = (iz * rp - rz * ip) / d;
+    mag = sqrt(rh * rh + ih * ih);
+    phaseSamples = 0 - (atan2(ih, rh) / (2 * ma.PI)) * (SR / f);
+};
 lpPhase(fc, f) = lpResponse(fc, f, 0);
 lpMag(fc, f) = lpResponse(fc, f, 1);
 
@@ -180,16 +194,58 @@ with {
     trig = gate > gate';
     held = ba.sAndH(trig, ident);
     rst = trig & (ident != held');
-    fc = ba.sAndH(rst, max(10, min(20000, fbFc)));
+    // computed from control-rate values and HELD at the reset (not recomputed
+    // per sample from a held cutoff - that made Faust evaluate cos/sin/atan2 at
+    // audio rate, twice the original's CPU)
+    fc = max(10, min(20000, fbFc));
     len = ba.sAndH(rst, SR / freq - lpPhase(fc, freq));
+    c(m) = ba.sAndH(rst, rbj(0, fc, QB, m));
     x = exc * excenv(excAt, excDt, trig, rst, excOff, offstep) : lpf(rst, excFc);
     loop(read) = w, s
     with {
-        s = x + read : inner(rst) : tdf2(rst, 0, fc, QB);
+        s = x + read : inner(rst) : tdf2k(rst, c(0), c(1), c(2), c(3), c(4));
         w = s * fb;
     };
 };
 plain(rst) = _;
+
+// CustomExciterWaveGuide (the choir's): the same string with the exciter
+// signal supplied from outside (no envelope or filter of its own).
+customwg(fb, freq, fbFc, gate, excSig) = loop ~ delayline(rst, len) : (!, _)
+with {
+    trig = gate > gate';
+    held = ba.sAndH(trig, freq);
+    rst = trig & (freq != held');
+    fc = max(10, min(20000, fbFc));
+    len = ba.sAndH(rst, SR / freq - lpPhase(fc, freq));
+    c(m) = ba.sAndH(rst, rbj(0, fc, QB, m));
+    loop(read) = w, s
+    with {
+        s = excSig + read : tdf2k(rst, c(0), c(1), c(2), c(3), c(4));
+        w = s * fb;
+    };
+};
+
+// BandPassWaveGuide (the flute's, local to the monster song): tuned at 1.6 x
+// freq, a loop low-pass then a high-pass at half that (Q 0.93) - both phases
+// compensated - and the write saturated: tanh(s * fb).
+bpwaveguide(excAt, excDt, excFc, fb, freq, fbFc, gate, exc) = loop ~ delayline(rst, len) : (!, _)
+with {
+    f = freq * 1.6;
+    trig = gate > gate';
+    held = ba.sAndH(trig, f);
+    rst = trig & (f != held');
+    fc = max(10, min(20000, fbFc));
+    len = ba.sAndH(rst, SR / f - response(0, fc, QB, f, 0) - response(1, f * 0.5, 0.93, f, 0));
+    c(m) = ba.sAndH(rst, rbj(0, fc, QB, m));
+    h(m) = ba.sAndH(rst, rbj(1, f * 0.5, 0.93, m));
+    x = exc * excenv(excAt, excDt, trig, rst, 0, 0) : lpf(rst, excFc);
+    loop(read) = w, s
+    with {
+        s = x + read : tdf2k(rst, c(0), c(1), c(2), c(3), c(4)) : df1k(rst, h(0), h(1), h(2), h(3), h(4));
+        w = ma.tanh(s * fb);
+    };
+};
 
 // ---- piano (PianoExciterWaveGuide + PianoWaveGuide) -----------------------------
 
@@ -203,9 +259,9 @@ with {
     // accumulated per sample like the original (t += 0.02/SR, feedback *= 0.9999)
     t = ba.if(trig, 0.0005 + 0.02 / SR, _ + 0.02 / SR) ~ _;
     fbl = ba.if(trig, 1, _ * 0.9999) ~ _;
-    fcx = ba.sAndH(trig, (2500 + pow(f, 0.8)) * vel);
+    c(m) = ba.sAndH(trig, rbj(0, (2500 + pow(f, 0.8)) * vel, QB, m));
     att = ba.sAndH(trig, 1 / (log(f) / log(2)));
-    drive = exc / pow(t, 1.8) : lpf(trig, fcx) : *(att);
+    drive = exc / pow(t, 1.8) : df1k(trig, c(0), c(1), c(2), c(3), c(4)) : *(att);
     loop(read) = w, s
     with {
         s = drive + hpf(trig, 100, read) : aps(75, trig, apc(SR / 650));

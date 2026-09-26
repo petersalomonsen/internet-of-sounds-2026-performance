@@ -61,31 +61,25 @@ layered *before* it, un-awaited. Keep that shape.
 
 ## Channels and instruments
 
-| ch | track variable | voice (faust/) | character | notes |
+| ch | track variable | voice (faust/) | character | CCs |
 |---|---|---|---|---|
-| 0 | `kick`, `introKick` | `Kick` | four-on-the-floor kick (`c2`) | |
-| 1 | `hihat`, `introHihat` | `Hihat` | off-beat hats (`fs3`), filtered noise — pitch ignored | |
-| 2 | `pad` | `Pad` | detuned dual saws, the verse chords | |
-| 3 | `bass`, `introBass` | `Bass` | saw + sub octave; intro pulse and italo octaves | |
-| 4 | `padlead` / `createTrack(4)` | `Padlead3` + channel with tempo echo | the bright lead, recorded takes | alternates `padlead`, `padlead2` exist |
-| 5 | `createTrack(5)` | `Jumppad2` + channel | OB-Xa style stacked saws: the '84 brass stabs | alternate `jumppad` exists |
-| 6 | `warmpad` | `Warmpad` | low-passed warm pad, breakdown/finale chords | |
-| 7 | `snare` | `Snare` | backbeat and fills (`d3`) | `createTrack(7, 1)`: one step per beat |
-| 8 | `createTrack(8)` | `Sololead` + channel | the live solo lead; **the keyboard channel on stage** | CC 0 vibrato depth, 1 vibrato rate, 2 cutoff, 3 resonance, 4 drive |
-| 9 | `bassguitar` | `Bassguitar` | Karplus-Strong bass guitar (from Beach Drive) | |
-| 10 | `mdrums` | `Mdrums` | waveguide kit from "monster is close": **c5 kick, d5 snare, fs5 hat, gs5 open hat, f5 g5 a5 b5 toms, cs6 cymbal**, other notes silent | CC 0 cymbal level, 1 hat level, 2 kick level, 3 snare level, 4 tom level |
-| 11 | `mbass` | `Mbass` | waveguide bass, deep and long | CC 0 bright, 1 damping, 2 exciter tone |
-| 12 | `mguitar` | `Mguitar` + amp | two detuned strings (L/R) into a soft-clip amp with a body resonance and echo | CC 0 bright, 1 damping, 2 exciter tone, 3 drive, 4 echo time, 5 echo send |
-| 13 | `mpiano` | `Mpiano` + combs | stiff-string piano, hammer resonator, stereo | CC 0 damping, 1 hammer tone |
-| 14 | `mstrings` | `Mstrings` | bowed waveguide pair (L/R) | CC 0 bow tone, 1 bright, 2 damping |
-| 15 | `mbrass` | `Mbrass` | two bright waveguides, breathy attack | CC 0 breath tone, 1 bright, 2 damping |
+| 0 | `kick`, `hihat`, `snare`, `mdrums` | `Mdrums` | waveguide kit: **c5 kick, d5 snare, fs5 hat, gs5 open hat, f5 g5 a5 b5 toms, cs6 cymbal**, other notes silent | 0 cymbal level, 1 hat level, 2 kick level, 3 snare level, 4 tom level |
+| 1 | `mbass` | `Mbass` | waveguide bass, deep and long | 0 bright, 1 damping, 2 exciter tone |
+| 2 | `mguitar` | `Mguitar` + amp | two detuned strings (L/R) into a soft-clip amp with a body resonance and echo | 0 bright, 1 damping, 2 exciter tone, 3 drive, 4 echo time, 5 echo send |
+| 3 | `mpiano` | `Mpiano` + combs | stiff-string piano, hammer resonator, stereo | 0 damping, 1 hammer tone |
+| 4 | `mflute` / `createTrack(4)` | `Mflute` + echo | breathy self-oscillating waveguide flute; plays the lead take (part3/part4) | 0 breath tone, 1 bright, 2 echo time, 3 echo send |
+| 5 | `jumppad` | `Jumppad2` + channel | OB-Xa style stacked saws: brass stabs (not used by the song yet) | |
+| 6 | `warmpad` / `createTrack(6)` | `Warmpad` | low-passed warm pad, the chords | |
+| 7 | `mstrings` | `Mstrings` | bowed waveguide pair (L/R) | 0 bow tone, 1 bright, 2 damping |
+| 8 | `mchoir` / `createTrack(8)` | `Mchoir` | two negative-feedback waveguides (octave apart), breath swell; sings the intro solo take | 0 breath tone, 1 bright |
+| 9 | `bassguitar` / `createTrack(9)` | `Bassguitar` | Karplus-Strong bass guitar (from Beach Drive) | |
+| 10 | `mbrass` | `Mbrass` | two bright waveguides, breathy attack | 0 breath tone, 1 bright, 2 damping |
+| 11 | `mpadsynth` | `Mpadsynth` + low-pass | nine detuned wavetable oscillators fanned L/R, plucked 2.5 s decay | 0 spread, 1 tone |
 
-Channels 10–15 are the physical-modeling instruments from "monster is close"
-(`faust/m*.dsp` on `faust/monster.lib`). They play in the current song: piano arpeggio and
-strings in `part2`, strings and guitar chops in `part4`, all six in `part5`. Reshape them
-live with their CCs: **CC 49 = the original sound**, CC 98 ≈ ×2, CC 25 ≈ ×½ of that
-quantity (`damping` is exponential: lower rings longer). String and loop tweaks apply from
-the next *new* note (a repeated note keeps its string).
+The `m…` instruments are from "monster is close" (`faust/m*.dsp`, the physical-modeling ones on
+`faust/monster.lib`). Reshape them live with their CCs: **CC 49 = the original sound**, CC 98 ≈ ×2,
+CC 25 ≈ ×½ of that quantity (`damping` is exponential: lower rings longer). String and loop tweaks
+apply from the next *new* note (a repeated note keeps its string). Channels 12–15 are free.
 
 `synth.ts` also runs a Zita-rev1 master reverb over the whole mix (`masterReverbWet = 0.30`)
 and the mastering chain (`gainDb 13`, ceiling −1.5 dBTP, high-pass 35 Hz). Leave both alone
@@ -151,9 +145,9 @@ steps in), `uCrowd` (crowd revealed), `uZoom` (pull back), `uCamMove` (orbit), `
 - **"More echo on the solo"** while playing: the solo channel's echo is a channel field,
   not a CC; leave it. Vibrato/cutoff/resonance/drive on ch 8 are CC 0–4 (`controlchange`).
 - **"Play it on the piano / guitar / strings" (physical modeling)**: change that block's
-  `createTrack(N)` to 13 / 12 / 14 (brass 15, bass 11). Compile. **"Brighter" / "longer
+  `createTrack(N)` to 3 / 2 / 7 (brass 10, bass 1, flute 4, choir 8, pad synth 11). Compile. **"Brighter" / "longer
   ring" / "more drive"** on one of them: `mguitar.steps(1, [ controlchange(3, 98) ]);`
-  at the part start (channel 12, CC 3 drive, ×2; CC 49 is the original — see the channel
+  at the part start (channel 2, CC 3 drive, ×2; CC 49 is the original — see the channel
   table). Compile.
 - **Lights / crowd / camera**: `setVisual('uLights', 1, 3.0)` etc. at the start of the
   part (guarded in a loop part). "Dark" is the same name to `0`.

@@ -79,7 +79,7 @@ exactly where it does in the recorded arrangement.
 | --- | --- |
 | `song.js` | the sequence — notes, arrangement, visual cues, the on-screen agent prompts and the performance-mode part markers |
 | `synth.ts` | the synth: the instruments combined in AssemblyScript, plus the Zita-rev1 master reverb and mastering chain |
-| `faust/` | the instruments — kick, hi-hat, snare, pads, italo bass, stab pad, solo lead and master reverb — in Faust, plus the physical-modeling instruments from "monster is close" (`m*.dsp` on `monster.lib`, channels 10–15) |
+| `faust/` | the instruments in Faust: from "monster is close" the waveguide kit, bass, guitar, piano, flute, strings, choir, brass and pad synth (`m*.dsp`, on `monster.lib`), plus the warm pad, jump pad, Karplus-Strong bass guitar and the master reverb |
 | `reference/monstertheme/` | the AssemblyScript originals of the physical-modeling instruments ("monster is close"), and how the ports were checked against them |
 | `shader.glsl` | the visualizer: a 3D stage of dancing figures under sweeping stage lights, with the typed-out prompt layer |
 | `AGENT.md` | the performance kit: what the studio agent knows about this song from the first turn on stage — parts, channels, the builders in `song.js`, recipes for live changes and for recording takes |
