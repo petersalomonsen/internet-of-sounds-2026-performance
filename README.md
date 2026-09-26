@@ -81,6 +81,7 @@ exactly where it does in the recorded arrangement.
 | `synth.ts` | the synth: the instruments combined in AssemblyScript, plus the Zita-rev1 master reverb and mastering chain |
 | `faust/` | the instruments — kick, hi-hat, snare, pads, italo bass, stab pad, solo lead and master reverb — in Faust |
 | `shader.glsl` | the visualizer: a 3D stage of dancing figures under sweeping stage lights, with the typed-out prompt layer |
+| `AGENT.md` | the performance kit: what the studio agent knows about this song from the first turn on stage — parts, channels, the builders in `song.js`, recipes for live changes and for recording takes |
 | `studioagent-session.json` | the conversation with the studio agent that built the song — it travels with the repo |
 
 ## Structure
