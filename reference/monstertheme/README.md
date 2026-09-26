@@ -73,10 +73,11 @@ right (javascriptmusic transpiler, PR #246).
   voice cost ~12× the CPU); a voice changing drum starts quiet.
 - **Flute voices** — 4 instead of the original's 1 (a Faust voice stays busy
   ~0.1 s after note-off, so a mono voice would drop quick notes).
-- **CPU** — with AssemblyScript's array bounds checks on (as the app compiles),
-  the ports cost 1.6–2.4× the originals; with them off, 2–3× less, except the
-  piano (1.6×: 75 hammer allpasses). The checks on Faust's state arrays are the
-  whole difference. The concert song renders at ~28% of one core headless.
+- **CPU** — the generated `.ts` files mark Faust's state-array accesses
+  `unchecked()` (javascriptmusic PR #247): AssemblyScript's bounds checks on
+  them were the whole extra cost. With them the ports cost 1.6–2.4× the
+  originals; without, 0.3–0.6× (the piano 1.0–1.1×, 75 hammer allpasses).
+  The concert song renders at ~13% of one core headless (28% before).
 
 Levels: a Faust voice adds 0.25 per side where the originals add 1.0, so the
 ports multiply by 4; channel volumes in `synth.ts` set the balance.

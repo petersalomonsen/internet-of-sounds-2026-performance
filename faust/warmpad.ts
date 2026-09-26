@@ -141,31 +141,31 @@ export class WarmpadDsp {
     }
     instanceClear(): void {
         for (let lDelay0: i32 = 0; lDelay0 < <i32>(2); lDelay0 = lDelay0 + 1) {
-            this.fVec144[lDelay0] = 0.0;
+            unchecked(this.fVec144[lDelay0] = 0.0);
         }
         for (let lRec1: i32 = 0; lRec1 < <i32>(2); lRec1 = lRec1 + 1) {
-            this.fRec903[lRec1] = 0.0;
+            unchecked(this.fRec903[lRec1] = 0.0);
         }
         for (let lRec2: i32 = 0; lRec2 < <i32>(2); lRec2 = lRec2 + 1) {
-            this.fRec903_1[lRec2] = 0.0;
+            unchecked(this.fRec903_1[lRec2] = 0.0);
         }
         for (let lRec3: i32 = 0; lRec3 < <i32>(2); lRec3 = lRec3 + 1) {
-            this.fRec916[lRec3] = 0.0;
+            unchecked(this.fRec916[lRec3] = 0.0);
         }
         for (let lRec4: i32 = 0; lRec4 < <i32>(2); lRec4 = lRec4 + 1) {
-            this.fRec916_1[lRec4] = 0.0;
+            unchecked(this.fRec916_1[lRec4] = 0.0);
         }
         for (let lRec5: i32 = 0; lRec5 < <i32>(2); lRec5 = lRec5 + 1) {
-            this.fRec930[lRec5] = 0.0;
+            unchecked(this.fRec930[lRec5] = 0.0);
         }
         for (let lRec6: i32 = 0; lRec6 < <i32>(2); lRec6 = lRec6 + 1) {
-            this.fRec930_1[lRec6] = 0.0;
+            unchecked(this.fRec930_1[lRec6] = 0.0);
         }
         for (let lRec13: i32 = 0; lRec13 < <i32>(3); lRec13 = lRec13 + 1) {
-            this.fRec999[lRec13] = 0.0;
+            unchecked(this.fRec999[lRec13] = 0.0);
         }
         for (let lRec14: i32 = 0; lRec14 < <i32>(3); lRec14 = lRec14 + 1) {
-            this.fRec1012[lRec14] = 0.0;
+            unchecked(this.fRec1012[lRec14] = 0.0);
         }
         this.fRec969 = 0.0;
         this.iRec979 = <i32>(0);
@@ -211,49 +211,49 @@ export class WarmpadDsp {
         this.fSlow11 = (1.2999999523162842 * <f32>(this.fHslider2));
     }
     frame(inputs: StaticArray<f32>, outputs: StaticArray<f32>): void {
-        let fTemp0: f32 = this.fRec903[<i32>(1)];
+        let fTemp0: f32 = unchecked(this.fRec903[<i32>(1)]);
         let fTemp1: f32 = (this.fSlow4 + (fTemp0 - 1.0));
         let iTemp0: i32 = (fTemp1 < 0.0);
         let fTemp2: f32 = (this.fSlow4 + fTemp0);
-        let fTemp3: f32 = this.fRec916[<i32>(1)];
+        let fTemp3: f32 = unchecked(this.fRec916[<i32>(1)]);
         let fTemp4: f32 = (this.fSlow6 + (fTemp3 - 1.0));
         let iTemp1: i32 = (fTemp4 < 0.0);
         let fTemp5: f32 = (this.fSlow6 + fTemp3);
-        let fTemp6: f32 = this.fRec930[<i32>(1)];
+        let fTemp6: f32 = unchecked(this.fRec930[<i32>(1)]);
         let fTemp7: f32 = (this.fSlow9 + (fTemp6 - 1.0));
         let iTemp2: i32 = (fTemp7 < 0.0);
         let fTemp8: f32 = (this.fSlow9 + fTemp6);
         let fRecBody7: f32 = (iTemp0 ? fTemp2 : fTemp1);
         let fRecBody8: f32 = (iTemp0 ? fTemp2 : (this.fSlow4 + (fTemp0 + (this.fSlow2 * fTemp1))));
-        this.fRec903[<i32>(0)] = fRecBody7;
-        this.fRec903_1[<i32>(0)] = fRecBody8;
+        unchecked(this.fRec903[<i32>(0)] = fRecBody7);
+        unchecked(this.fRec903_1[<i32>(0)] = fRecBody8);
         let fRecBody9: f32 = (iTemp1 ? fTemp5 : fTemp4);
         let fRecBody10: f32 = (iTemp1 ? fTemp5 : (this.fSlow6 + (fTemp3 + (this.fSlow7 * fTemp4))));
-        this.fRec916[<i32>(0)] = fRecBody9;
-        this.fRec916_1[<i32>(0)] = fRecBody10;
+        unchecked(this.fRec916[<i32>(0)] = fRecBody9);
+        unchecked(this.fRec916_1[<i32>(0)] = fRecBody10);
         let fRecBody11: f32 = (iTemp2 ? fTemp8 : fTemp7);
         let fRecBody12: f32 = (iTemp2 ? fTemp8 : (this.fSlow9 + (fTemp6 + (this.fSlow10 * fTemp7))));
-        this.fRec930[<i32>(0)] = fRecBody11;
-        this.fRec930_1[<i32>(0)] = fRecBody12;
-        let fTemp9: f32 = this.fRec999[<i32>(1)];
-        this.fRec999[<i32>(0)] = (-1.0 * ((0.3333333432674408 * ((2.0 * (1.0 - ((this.fRec903_1[<i32>(0)] + this.fRec916_1[<i32>(0)]) + this.fRec930_1[<i32>(0)]))) + 1.0)) + (((this.fRec999[<i32>(2)] * this.fConst7) + (this.fConst12 * fTemp9)) / this.fConst8)));
-        let fTemp10: f32 = this.fRec1012[<i32>(1)];
-        this.fRec1012[<i32>(0)] = ((((this.fRec999[<i32>(0)] + (2.0 * fTemp9)) + this.fRec999[<i32>(2)]) / this.fConst8) - (((this.fRec1012[<i32>(2)] * this.fConst9) + (this.fConst12 * fTemp10)) / this.fConst10));
-        this.fVec144[<i32>(0)] = this.fSlow3;
-        let fRecCur969: f32 = (this.fSlow3 + (this.fRec969 * <f32>((this.fVec144[<i32>(1)] >= this.fSlow3))));
+        unchecked(this.fRec930[<i32>(0)] = fRecBody11);
+        unchecked(this.fRec930_1[<i32>(0)] = fRecBody12);
+        let fTemp9: f32 = unchecked(this.fRec999[<i32>(1)]);
+        unchecked(this.fRec999[<i32>(0)] = (-1.0 * ((0.3333333432674408 * ((2.0 * (1.0 - ((unchecked(this.fRec903_1[<i32>(0)]) + unchecked(this.fRec916_1[<i32>(0)])) + unchecked(this.fRec930_1[<i32>(0)])))) + 1.0)) + (((unchecked(this.fRec999[<i32>(2)]) * this.fConst7) + (this.fConst12 * fTemp9)) / this.fConst8))));
+        let fTemp10: f32 = unchecked(this.fRec1012[<i32>(1)]);
+        unchecked(this.fRec1012[<i32>(0)] = ((((unchecked(this.fRec999[<i32>(0)]) + (2.0 * fTemp9)) + unchecked(this.fRec999[<i32>(2)])) / this.fConst8) - (((unchecked(this.fRec1012[<i32>(2)]) * this.fConst9) + (this.fConst12 * fTemp10)) / this.fConst10)));
+        unchecked(this.fVec144[<i32>(0)] = this.fSlow3);
+        let fRecCur969: f32 = (this.fSlow3 + (this.fRec969 * <f32>((unchecked(this.fVec144[<i32>(1)]) >= this.fSlow3))));
         let iRecCur979: i32 = (this.iSlow0 * (this.iRec979 + <i32>(1)));
-        outputs[<i32>(0)] = <f32>((this.fSlow11 * ((((this.fRec1012[<i32>(0)] + (2.0 * this.fRec1012[<i32>(1)])) + this.fRec1012[<i32>(2)]) * max<f32>((min<f32>((this.fConst3 * fRecCur969), max<f32>(((this.fConst4 * (this.fConst2 - fRecCur969)) + 1.0), 0.7799999713897705)) * (1.0 - (this.fConst11 * <f32>(iRecCur979)))), 0.0)) / this.fConst10)));
-        this.fRec903[<i32>(1)] = this.fRec903[<i32>(0)];
-        this.fRec903_1[<i32>(1)] = this.fRec903_1[<i32>(0)];
-        this.fRec916[<i32>(1)] = this.fRec916[<i32>(0)];
-        this.fRec916_1[<i32>(1)] = this.fRec916_1[<i32>(0)];
-        this.fRec930[<i32>(1)] = this.fRec930[<i32>(0)];
-        this.fRec930_1[<i32>(1)] = this.fRec930_1[<i32>(0)];
-        this.fRec999[<i32>(2)] = this.fRec999[<i32>(1)];
-        this.fRec999[<i32>(1)] = this.fRec999[<i32>(0)];
-        this.fRec1012[<i32>(2)] = this.fRec1012[<i32>(1)];
-        this.fRec1012[<i32>(1)] = this.fRec1012[<i32>(0)];
-        this.fVec144[<i32>(1)] = this.fVec144[<i32>(0)];
+        outputs[<i32>(0)] = <f32>((this.fSlow11 * ((((unchecked(this.fRec1012[<i32>(0)]) + (2.0 * unchecked(this.fRec1012[<i32>(1)]))) + unchecked(this.fRec1012[<i32>(2)])) * max<f32>((min<f32>((this.fConst3 * fRecCur969), max<f32>(((this.fConst4 * (this.fConst2 - fRecCur969)) + 1.0), 0.7799999713897705)) * (1.0 - (this.fConst11 * <f32>(iRecCur979)))), 0.0)) / this.fConst10)));
+        unchecked(this.fRec903[<i32>(1)] = unchecked(this.fRec903[<i32>(0)]));
+        unchecked(this.fRec903_1[<i32>(1)] = unchecked(this.fRec903_1[<i32>(0)]));
+        unchecked(this.fRec916[<i32>(1)] = unchecked(this.fRec916[<i32>(0)]));
+        unchecked(this.fRec916_1[<i32>(1)] = unchecked(this.fRec916_1[<i32>(0)]));
+        unchecked(this.fRec930[<i32>(1)] = unchecked(this.fRec930[<i32>(0)]));
+        unchecked(this.fRec930_1[<i32>(1)] = unchecked(this.fRec930_1[<i32>(0)]));
+        unchecked(this.fRec999[<i32>(2)] = unchecked(this.fRec999[<i32>(1)]));
+        unchecked(this.fRec999[<i32>(1)] = unchecked(this.fRec999[<i32>(0)]));
+        unchecked(this.fRec1012[<i32>(2)] = unchecked(this.fRec1012[<i32>(1)]));
+        unchecked(this.fRec1012[<i32>(1)] = unchecked(this.fRec1012[<i32>(0)]));
+        unchecked(this.fVec144[<i32>(1)] = unchecked(this.fVec144[<i32>(0)]));
         this.fRec969 = fRecCur969;
         this.iRec979 = iRecCur979;
     }
@@ -299,7 +299,7 @@ export class Warmpad extends MidiVoice {
 
     nextframe(): void {
         this.dsp.frame(this.fin, this.fout);
-        const output: f32 = this.fout[0];
+        const output: f32 = unchecked(this.fout[0]);
         if (Mathf.abs(output) < 0.001) {
             this.silentSamples++;
         } else {

@@ -146,10 +146,10 @@ export class BassguitarDsp {
     }
     instanceClear(): void {
         for (let lDelay0: i32 = 0; lDelay0 < <i32>(2); lDelay0 = lDelay0 + 1) {
-            this.fVec156[lDelay0] = 0.0;
+            unchecked(this.fVec156[lDelay0] = 0.0);
         }
         for (let lDelay1: i32 = 0; lDelay1 < <i32>(8192); lDelay1 = lDelay1 + 1) {
-            this.fVec984[lDelay1] = 0.0;
+            unchecked(this.fVec984[lDelay1] = 0.0);
         }
         this.fRec0 = 0.0;
         this.fRec1 = 0.0;
@@ -206,18 +206,18 @@ export class BassguitarDsp {
     }
     frame(inputs: StaticArray<f32>, outputs: StaticArray<f32>): void {
         let fTemp0: f32 = (0.9999989867210388 * this.fRec1);
-        this.fVec984[(this.fIOTA & <i32>(8191))] = fTemp0;
+        unchecked(this.fVec984[(this.fIOTA & <i32>(8191))] = fTemp0);
         let iRecCur3: i32 = ((<i32>(1103515245) * this.iRec3) + <i32>(12345));
-        this.fVec156[<i32>(0)] = this.fSlow0;
-        let fRecCur4: f32 = (this.fSlow0 + (this.fRec4 * <f32>((this.fVec156[<i32>(1)] >= this.fSlow0))));
+        unchecked(this.fVec156[<i32>(0)] = this.fSlow0);
+        let fRecCur4: f32 = (this.fSlow0 + (this.fRec4 * <f32>((unchecked(this.fVec156[<i32>(1)]) >= this.fSlow0))));
         let iRecCur5: i32 = (this.iSlow0 * (this.iRec5 + <i32>(1)));
         let fTemp1: f32 = <f32>(iRecCur5);
         let fRecCur2: f32 = ((this.fConst6 * this.fRec2) + (this.fConst7 * (<f32>(iRecCur3) * max<f32>((min<f32>((this.fConst2 * fRecCur4), max<f32>(((this.fConst3 * (this.fConst1 - fRecCur4)) + 1.0), 0.0)) * (1.0 - (this.fConst3 * fTemp1))), 0.0))));
-        let fRecCur0: f32 = ((this.fSlow3 * this.fRec0) + (this.fSlow4 * (((this.fSlow8 * ((this.fSlow14 * ((this.fSlow12 * ((0.0416666679084301 * (this.fVec984[((this.fIOTA - this.iSlow2) & <i32>(8191))] * this.fSlow9)) - (0.1666666716337204 * (this.fSlow10 * this.fVec984[((this.fIOTA - this.iSlow3) & <i32>(8191))])))) + (0.25 * (this.fSlow11 * this.fVec984[((this.fIOTA - this.iSlow4) & <i32>(8191))])))) - (0.1666666716337204 * (this.fSlow13 * this.fVec984[((this.fIOTA - this.iSlow5) & <i32>(8191))])))) + (0.0416666679084301 * (this.fSlow15 * this.fVec984[((this.fIOTA - this.iSlow6) & <i32>(8191))]))) + fRecCur2)));
+        let fRecCur0: f32 = ((this.fSlow3 * this.fRec0) + (this.fSlow4 * (((this.fSlow8 * ((this.fSlow14 * ((this.fSlow12 * ((0.0416666679084301 * (unchecked(this.fVec984[((this.fIOTA - this.iSlow2) & <i32>(8191))]) * this.fSlow9)) - (0.1666666716337204 * (this.fSlow10 * unchecked(this.fVec984[((this.fIOTA - this.iSlow3) & <i32>(8191))]))))) + (0.25 * (this.fSlow11 * unchecked(this.fVec984[((this.fIOTA - this.iSlow4) & <i32>(8191))]))))) - (0.1666666716337204 * (this.fSlow13 * unchecked(this.fVec984[((this.fIOTA - this.iSlow5) & <i32>(8191))]))))) + (0.0416666679084301 * (this.fSlow15 * unchecked(this.fVec984[((this.fIOTA - this.iSlow6) & <i32>(8191))])))) + fRecCur2)));
         let fRecCur1: f32 = fRecCur0;
         outputs[<i32>(0)] = <f32>((this.fSlow1 * (fRecCur1 * max<f32>((min<f32>((this.fConst4 * fRecCur4), 1.0) - (this.fConst4 * fTemp1)), 0.0))));
         this.iRec3 = iRecCur3;
-        this.fVec156[<i32>(1)] = this.fVec156[<i32>(0)];
+        unchecked(this.fVec156[<i32>(1)] = unchecked(this.fVec156[<i32>(0)]));
         this.fRec4 = fRecCur4;
         this.iRec5 = iRecCur5;
         this.fRec2 = fRecCur2;
@@ -267,7 +267,7 @@ export class Bassguitar extends MidiVoice {
 
     nextframe(): void {
         this.dsp.frame(this.fin, this.fout);
-        const output: f32 = this.fout[0];
+        const output: f32 = unchecked(this.fout[0]);
         if (Mathf.abs(output) < 0.001) {
             this.silentSamples++;
         } else {

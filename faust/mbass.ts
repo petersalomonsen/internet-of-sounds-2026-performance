@@ -180,51 +180,51 @@ export class MbassDsp {
     }
     instanceClear(): void {
         for (let lDelay0: i32 = 0; lDelay0 < <i32>(2); lDelay0 = lDelay0 + 1) {
-            this.fVec9[lDelay0] = 0.0;
+            unchecked(this.fVec9[lDelay0] = 0.0);
         }
         for (let lDelay1: i32 = 0; lDelay1 < <i32>(2); lDelay1 = lDelay1 + 1) {
-            this.fVec2100[lDelay1] = 0.0;
+            unchecked(this.fVec2100[lDelay1] = 0.0);
         }
         for (let lRec2: i32 = 0; lRec2 < <i32>(16384); lRec2 = lRec2 + 1) {
-            this.fRec0[lRec2] = 0.0;
+            unchecked(this.fRec0[lRec2] = 0.0);
         }
         for (let lRec3: i32 = 0; lRec3 < <i32>(2); lRec3 = lRec3 + 1) {
-            this.fRec0_1[lRec3] = 0.0;
+            unchecked(this.fRec0_1[lRec3] = 0.0);
         }
         this.fIOTA = <i32>(0);
         for (let lRec4: i32 = 0; lRec4 < <i32>(2); lRec4 = lRec4 + 1) {
-            this.fRec1[lRec4] = 0.0;
+            unchecked(this.fRec1[lRec4] = 0.0);
         }
         for (let lRec5: i32 = 0; lRec5 < <i32>(2); lRec5 = lRec5 + 1) {
-            this.fRec1_1[lRec5] = 0.0;
+            unchecked(this.fRec1_1[lRec5] = 0.0);
         }
         for (let lRec6: i32 = 0; lRec6 < <i32>(2); lRec6 = lRec6 + 1) {
-            this.fRec1_2[lRec6] = 0.0;
+            unchecked(this.fRec1_2[lRec6] = 0.0);
         }
         this.fRec2 = 0.0;
         for (let lRec7: i32 = 0; lRec7 < <i32>(2); lRec7 = lRec7 + 1) {
-            this.fRec3[lRec7] = 0.0;
+            unchecked(this.fRec3[lRec7] = 0.0);
         }
         for (let lRec8: i32 = 0; lRec8 < <i32>(2); lRec8 = lRec8 + 1) {
-            this.fRec3_1[lRec8] = 0.0;
+            unchecked(this.fRec3_1[lRec8] = 0.0);
         }
         for (let lRec9: i32 = 0; lRec9 < <i32>(2); lRec9 = lRec9 + 1) {
-            this.fRec3_2[lRec9] = 0.0;
+            unchecked(this.fRec3_2[lRec9] = 0.0);
         }
         for (let lRec10: i32 = 0; lRec10 < <i32>(2); lRec10 = lRec10 + 1) {
-            this.fRec3_3[lRec10] = 0.0;
+            unchecked(this.fRec3_3[lRec10] = 0.0);
         }
         for (let lRec11: i32 = 0; lRec11 < <i32>(2); lRec11 = lRec11 + 1) {
-            this.iRec4[lRec11] = <i32>(0);
+            unchecked(this.iRec4[lRec11] = <i32>(0));
         }
         for (let lRec12: i32 = 0; lRec12 < <i32>(2); lRec12 = lRec12 + 1) {
-            this.fRec4_1[lRec12] = 0.0;
+            unchecked(this.fRec4_1[lRec12] = 0.0);
         }
         for (let lRec13: i32 = 0; lRec13 < <i32>(2); lRec13 = lRec13 + 1) {
-            this.iRec5[lRec13] = <i32>(0);
+            unchecked(this.iRec5[lRec13] = <i32>(0));
         }
         for (let lRec14: i32 = 0; lRec14 < <i32>(2); lRec14 = lRec14 + 1) {
-            this.fRec5_1[lRec14] = 0.0;
+            unchecked(this.fRec5_1[lRec14] = 0.0);
         }
         this.iRec6 = <i32>(0);
         this.fRec7 = 0.0;
@@ -290,15 +290,15 @@ export class MbassDsp {
         this.fSlow31 = ((this.fConst0 / this.fSlow9) * ((0.15915493667125702 * Mathf.atan2(((this.fSlow15 * ((this.fSlow24 * this.fSlow27) - ((this.fSlow28 * this.fSlow29) / this.fSlow13))) / this.fSlow30), ((this.fSlow15 * ((this.fSlow27 * this.fSlow28) + (this.fSlow24 * (this.fSlow29 / this.fSlow13)))) / this.fSlow30))) + 1.0));
     }
     frame(inputs: StaticArray<f32>, outputs: StaticArray<f32>): void {
-        this.fVec9[<i32>(0)] = this.fSlow0;
-        let fTemp0: f32 = this.fVec9[<i32>(1)];
+        unchecked(this.fVec9[<i32>(0)] = this.fSlow0);
+        let fTemp0: f32 = unchecked(this.fVec9[<i32>(1)]);
         let iTemp0: i32 = (this.fSlow0 > fTemp0);
         let fRecCur2: f32 = (iTemp0 ? this.fSlow9 : this.fRec2);
-        let iTemp1: i32 = (iTemp0 ? <i32>(1) : this.iRec4[<i32>(1)]);
+        let iTemp1: i32 = (iTemp0 ? <i32>(1) : unchecked(this.iRec4[<i32>(1)]));
         let iTemp2: i32 = (iTemp1 >= <i32>(2));
         let iTemp3: i32 = (iTemp1 >= <i32>(1));
         let iTemp4: i32 = (iTemp0 & (this.fSlow9 != this.fRec2));
-        let fTemp1: f32 = (iTemp4 ? 0.0 : this.fRec4_1[<i32>(1)]);
+        let fTemp1: f32 = (iTemp4 ? 0.0 : unchecked(this.fRec4_1[<i32>(1)]));
         let fTemp2: f32 = min<f32>(1.0, (fTemp1 + this.fConst1));
         let iTemp5: i32 = (iTemp1 >= <i32>(3));
         let fTemp3: f32 = max<f32>(0.0, (fTemp1 - this.fConst2));
@@ -306,84 +306,84 @@ export class MbassDsp {
         let iRecCur6: i32 = (<i32>(1103515245) * (this.iRec6 + <i32>(12345)));
         let iRecBody15: i32 = (iTemp2 ? (iTemp5 ? ((fTemp4 <= 0.0) ? <i32>(0) : <i32>(3)) : ((fTemp3 <= 0.0) ? <i32>(0) : <i32>(2))) : (iTemp3 ? ((fTemp2 >= 1.0) ? <i32>(2) : <i32>(1)) : <i32>(0)));
         let fRecBody16: f32 = (iTemp2 ? (iTemp5 ? fTemp4 : fTemp3) : (iTemp3 ? fTemp2 : fTemp1));
-        this.iRec4[<i32>(0)] = iRecBody15;
-        this.fRec4_1[<i32>(0)] = fRecBody16;
-        let fTemp5: f32 = (<f32>(iRecCur6) * this.fRec4_1[<i32>(0)]);
+        unchecked(this.iRec4[<i32>(0)] = iRecBody15);
+        unchecked(this.fRec4_1[<i32>(0)] = fRecBody16);
+        let fTemp5: f32 = (<f32>(iRecCur6) * unchecked(this.fRec4_1[<i32>(0)]));
         let iTemp6: i32 = (<i32>(1) - iTemp4);
         let fTemp6: f32 = <f32>(iTemp6);
-        let fTemp7: f32 = this.fRec3[<i32>(1)];
-        let fTemp8: f32 = this.fRec3_2[<i32>(1)];
-        let iTemp7: i32 = (iTemp0 ? <i32>(1) : ((this.fSlow0 < fTemp0) ? <i32>(0) : this.iRec5[<i32>(1)]));
+        let fTemp7: f32 = unchecked(this.fRec3[<i32>(1)]);
+        let fTemp8: f32 = unchecked(this.fRec3_2[<i32>(1)]);
+        let iTemp7: i32 = (iTemp0 ? <i32>(1) : ((this.fSlow0 < fTemp0) ? <i32>(0) : unchecked(this.iRec5[<i32>(1)])));
         let iTemp8: i32 = (iTemp7 >= <i32>(2));
         let iTemp9: i32 = (iTemp7 >= <i32>(1));
-        let fTemp9: f32 = this.fRec5_1[<i32>(1)];
+        let fTemp9: f32 = unchecked(this.fRec5_1[<i32>(1)]);
         let fTemp10: f32 = min<f32>(1.0, (fTemp9 + this.fConst1));
         let iTemp10: i32 = (iTemp7 >= <i32>(3));
         let fTemp11: f32 = max<f32>(1.0, (fTemp9 - this.fConst3));
         let fRecCur7: f32 = (iTemp4 ? this.fSlow16 : this.fRec7);
         let fRecBody17: f32 = (0.00000000023283064365386963 * fTemp5);
         let fRecBody18: f32 = (fTemp6 * fTemp7);
-        let fRecBody19: f32 = (((this.fSlow5 * ((0.00000000011641532182693481 * fTemp5) + (fTemp6 * (fTemp7 + (0.5 * this.fRec3_1[<i32>(1)]))))) + (fTemp6 * ((2.0 * (fTemp8 * this.fSlow4)) - (this.fRec3_3[<i32>(1)] * this.fSlow7)))) / this.fSlow8);
+        let fRecBody19: f32 = (((this.fSlow5 * ((0.00000000011641532182693481 * fTemp5) + (fTemp6 * (fTemp7 + (0.5 * unchecked(this.fRec3_1[<i32>(1)])))))) + (fTemp6 * ((2.0 * (fTemp8 * this.fSlow4)) - (unchecked(this.fRec3_3[<i32>(1)]) * this.fSlow7)))) / this.fSlow8);
         let fRecBody20: f32 = (fTemp6 * fTemp8);
-        this.fRec3[<i32>(0)] = fRecBody17;
-        this.fRec3_1[<i32>(0)] = fRecBody18;
-        this.fRec3_2[<i32>(0)] = fRecBody19;
-        this.fRec3_3[<i32>(0)] = fRecBody20;
+        unchecked(this.fRec3[<i32>(0)] = fRecBody17);
+        unchecked(this.fRec3_1[<i32>(0)] = fRecBody18);
+        unchecked(this.fRec3_2[<i32>(0)] = fRecBody19);
+        unchecked(this.fRec3_3[<i32>(0)] = fRecBody20);
         let fRecCur8: f32 = (iTemp4 ? this.fSlow31 : this.fRec8);
         let iTemp11: i32 = max<i32>(<i32>(1), <i32>(fRecCur8));
         let fTemp12: f32 = max<f32>(0.0, (fRecCur8 - <f32>(iTemp11)));
         let fTemp13: f32 = (1.0 - fTemp12);
-        let fTemp14: f32 = this.fRec0[((this.fIOTA - (min<i32>(<i32>(8192), max<i32>(<i32>(0), (iTemp11 + <i32>(-1)))) + <i32>(1))) & <i32>(16383))];
+        let fTemp14: f32 = unchecked(this.fRec0[((this.fIOTA - (min<i32>(<i32>(8192), max<i32>(<i32>(0), (iTemp11 + <i32>(-1)))) + <i32>(1))) & <i32>(16383))]);
         let iRecCur9: i32 = (iTemp6 * (this.iRec9 + <i32>(1)));
         let fTemp15: f32 = <f32>((iRecCur9 >= iTemp11));
         let fTemp16: f32 = (fTemp14 * fTemp15);
         let fTemp17: f32 = (fTemp12 + 1.0);
-        this.fVec2100[<i32>(0)] = fTemp16;
-        let fRecCur10: f32 = (iTemp4 ? (((fTemp13 * fTemp14) * fTemp15) / fTemp17) : (((fTemp13 * (fTemp16 - this.fRec10)) / fTemp17) + this.fVec2100[<i32>(1)]));
-        let fTemp18: f32 = (this.fRec3_2[<i32>(0)] + fRecCur10);
+        unchecked(this.fVec2100[<i32>(0)] = fTemp16);
+        let fRecCur10: f32 = (iTemp4 ? (((fTemp13 * fTemp14) * fTemp15) / fTemp17) : (((fTemp13 * (fTemp16 - this.fRec10)) / fTemp17) + unchecked(this.fVec2100[<i32>(1)])));
+        let fTemp18: f32 = (unchecked(this.fRec3_2[<i32>(0)]) + fRecCur10);
         let fRecCur11: f32 = (iTemp4 ? this.fSlow14 : this.fRec11);
         let fRecCur12: f32 = (iTemp4 ? this.fSlow17 : this.fRec12);
         let fTemp19: f32 = (fTemp18 * fRecCur12);
-        let fTemp20: f32 = ((fTemp6 * this.fRec1[<i32>(1)]) + fTemp19);
+        let fTemp20: f32 = ((fTemp6 * unchecked(this.fRec1[<i32>(1)])) + fTemp19);
         let fRecCur13: f32 = (iTemp4 ? this.fSlow19 : this.fRec13);
-        let fRecBody21: f32 = (((this.fRec1_1[<i32>(1)] * fTemp6) + (fRecCur7 * fTemp18)) - (fRecCur11 * fTemp20));
+        let fRecBody21: f32 = (((unchecked(this.fRec1_1[<i32>(1)]) * fTemp6) + (fRecCur7 * fTemp18)) - (fRecCur11 * fTemp20));
         let fRecBody22: f32 = (fTemp19 - (fTemp20 * fRecCur13));
         let fRecBody23: f32 = fTemp20;
-        this.fRec1[<i32>(0)] = fRecBody21;
-        this.fRec1_1[<i32>(0)] = fRecBody22;
-        this.fRec1_2[<i32>(0)] = fRecBody23;
-        let fRecBody24: f32 = (this.fSlow1 * this.fRec1_2[<i32>(0)]);
-        let fRecBody25: f32 = this.fRec1_2[<i32>(0)];
-        this.fRec0[(this.fIOTA & <i32>(16383))] = fRecBody24;
-        this.fRec0_1[<i32>(0)] = fRecBody25;
+        unchecked(this.fRec1[<i32>(0)] = fRecBody21);
+        unchecked(this.fRec1_1[<i32>(0)] = fRecBody22);
+        unchecked(this.fRec1_2[<i32>(0)] = fRecBody23);
+        let fRecBody24: f32 = (this.fSlow1 * unchecked(this.fRec1_2[<i32>(0)]));
+        let fRecBody25: f32 = unchecked(this.fRec1_2[<i32>(0)]);
+        unchecked(this.fRec0[(this.fIOTA & <i32>(16383))] = fRecBody24);
+        unchecked(this.fRec0_1[<i32>(0)] = fRecBody25);
         let iRecBody26: i32 = (iTemp8 ? (iTemp10 ? <i32>(3) : ((fTemp11 <= 1.0) ? <i32>(3) : <i32>(2))) : (iTemp9 ? ((fTemp10 >= 1.0) ? <i32>(2) : <i32>(1)) : <i32>(0)));
         let fRecBody27: f32 = (iTemp8 ? (iTemp10 ? fTemp9 : fTemp11) : (iTemp9 ? fTemp10 : max<f32>(0.0, (fTemp9 - this.fConst4))));
-        this.iRec5[<i32>(0)] = iRecBody26;
-        this.fRec5_1[<i32>(0)] = fRecBody27;
-        outputs[<i32>(0)] = <f32>((this.fSlow2 * (this.fRec0_1[<i32>(0)] * this.fRec5_1[<i32>(0)])));
-        this.fVec9[<i32>(1)] = this.fVec9[<i32>(0)];
+        unchecked(this.iRec5[<i32>(0)] = iRecBody26);
+        unchecked(this.fRec5_1[<i32>(0)] = fRecBody27);
+        outputs[<i32>(0)] = <f32>((this.fSlow2 * (unchecked(this.fRec0_1[<i32>(0)]) * unchecked(this.fRec5_1[<i32>(0)]))));
+        unchecked(this.fVec9[<i32>(1)] = unchecked(this.fVec9[<i32>(0)]));
         this.fRec2 = fRecCur2;
         this.iRec6 = iRecCur6;
-        this.iRec4[<i32>(1)] = this.iRec4[<i32>(0)];
-        this.fRec4_1[<i32>(1)] = this.fRec4_1[<i32>(0)];
+        unchecked(this.iRec4[<i32>(1)] = unchecked(this.iRec4[<i32>(0)]));
+        unchecked(this.fRec4_1[<i32>(1)] = unchecked(this.fRec4_1[<i32>(0)]));
         this.fRec7 = fRecCur7;
-        this.fRec3[<i32>(1)] = this.fRec3[<i32>(0)];
-        this.fRec3_1[<i32>(1)] = this.fRec3_1[<i32>(0)];
-        this.fRec3_2[<i32>(1)] = this.fRec3_2[<i32>(0)];
-        this.fRec3_3[<i32>(1)] = this.fRec3_3[<i32>(0)];
+        unchecked(this.fRec3[<i32>(1)] = unchecked(this.fRec3[<i32>(0)]));
+        unchecked(this.fRec3_1[<i32>(1)] = unchecked(this.fRec3_1[<i32>(0)]));
+        unchecked(this.fRec3_2[<i32>(1)] = unchecked(this.fRec3_2[<i32>(0)]));
+        unchecked(this.fRec3_3[<i32>(1)] = unchecked(this.fRec3_3[<i32>(0)]));
         this.fRec8 = fRecCur8;
         this.iRec9 = iRecCur9;
-        this.fVec2100[<i32>(1)] = this.fVec2100[<i32>(0)];
+        unchecked(this.fVec2100[<i32>(1)] = unchecked(this.fVec2100[<i32>(0)]));
         this.fRec10 = fRecCur10;
         this.fRec11 = fRecCur11;
         this.fRec12 = fRecCur12;
         this.fRec13 = fRecCur13;
-        this.fRec1[<i32>(1)] = this.fRec1[<i32>(0)];
-        this.fRec1_1[<i32>(1)] = this.fRec1_1[<i32>(0)];
-        this.fRec1_2[<i32>(1)] = this.fRec1_2[<i32>(0)];
-        this.fRec0_1[<i32>(1)] = this.fRec0_1[<i32>(0)];
-        this.iRec5[<i32>(1)] = this.iRec5[<i32>(0)];
-        this.fRec5_1[<i32>(1)] = this.fRec5_1[<i32>(0)];
+        unchecked(this.fRec1[<i32>(1)] = unchecked(this.fRec1[<i32>(0)]));
+        unchecked(this.fRec1_1[<i32>(1)] = unchecked(this.fRec1_1[<i32>(0)]));
+        unchecked(this.fRec1_2[<i32>(1)] = unchecked(this.fRec1_2[<i32>(0)]));
+        unchecked(this.fRec0_1[<i32>(1)] = unchecked(this.fRec0_1[<i32>(0)]));
+        unchecked(this.iRec5[<i32>(1)] = unchecked(this.iRec5[<i32>(0)]));
+        unchecked(this.fRec5_1[<i32>(1)] = unchecked(this.fRec5_1[<i32>(0)]));
         this.fIOTA = (this.fIOTA + <i32>(1));
     }
     compute(count: i32, inputs: Array<StaticArray<f32>>, outputs: Array<StaticArray<f32>>): void {
