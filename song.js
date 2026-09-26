@@ -1,8 +1,5 @@
-/*
- * "Prompted" — italo-disco instrumental, D minor, 125 BPM.
- * Music & code (c) 2026 Peter J. Salomonsen — petersalomonsen.com
- * Licensed under CC BY-NC 4.0.
- */
+// Blank performance song: one 16-beat "start" section, nothing playing.
+// The full song ("Prompted") is in git at HEAD (commit 46c8919) — read_committed('song.js') restores it.
 setBPM(125);
 
 addInstrument('kick');   // 0
@@ -13,924 +10,230 @@ addInstrument('padlead');// 4
 addInstrument('jumppad');// 5
 addInstrument('warmpad');// 6
 addInstrument('snare');  // 7
-addInstrument('sololead');// 8 — live keyboard solo (played by hand, recorded over the last two finale rounds)
+addInstrument('sololead');// 8
+addInstrument('bassguitar');// 9 — Karplus-Strong bass guitar (ported from Beach Drive)
 
-
-
-const kick  = createTrack(0, 4);
-const hihat = createTrack(1, 4);
-const pad   = createTrack(2, 4);
-const bass  = createTrack(3, 4);
+const kick    = createTrack(0, 4);
+const hihat   = createTrack(1, 4);
+const pad     = createTrack(2, 4);
+const bass    = createTrack(3, 4);
 const padlead = createTrack(4);
+const jumppad = createTrack(5);
 const warmpad = createTrack(6);
-const snare = createTrack(7, 1);
+const snare   = createTrack(7, 1);
+const sololead = createTrack(8);
+const bassguitar = createTrack(9);
 
-// --- on-screen "live agent" captions: a green command + a blue reply, both typed
-// out by the shader (uTextMix drives the typewriter). Music is never touched here. ---
-const AGENT_OPTS = { font: 'monospace', align: 'left', x: 0.035, y: 0.5, size: 40, lineHeight: 1.6, weight: 'bold', fade: 4 };
-function agentPrompt(cmd, reply) {
-    showText(["> " + cmd, "  " + reply], AGENT_OPTS);
-}
+// === PART "start" (4 bars = 16 beats): silence ===
+definePartStart('start');
+warmpad.steps(1, [ controlchange(7, 72) ]);   // warm pad channel volume down (default 100) — it was too loud against the bass
+createTrack(9).play([
+  [ 0.00, d2(0.36, 72) ],
+  [ 1.00, a2(0.36, 72) ],
+[ 1.41, c3(0.27, 75) ],
+[ 1.98, d3(0.57, 90) ],
+[ 3.55, f2(0.45, 87) ],
+[ 4.48, f2(0.58, 77) ],
+[ 5.04, f3(0.37, 78) ],
+[ 5.45, f2(0.25, 72) ],
+[ 5.98, g2(0.27, 82) ],
+[ 6.44, g2(0.51, 83) ],
+[ 6.94, g3(0.27, 88) ],
+[ 7.94, d2(0.89, 79) ],
+[ 8.92, a2(0.34, 70) ],
+[ 9.38, c3(0.29, 72) ],
+[ 9.92, d3(1.11, 89) ],
+[ 11.60, f2(0.54, 67) ],
+[ 12.57, f2(0.50, 70) ],
+[ 13.15, e3(0.05, 9) ],
+[ 13.06, f3(0.36, 69) ],
+[ 14.03, c2(0.31, 64) ],
+[ 14.51, c2(0.50, 74) ],
+[ 15.05, c3(0.44, 77) ]].quantize(4));
 
-// --- performance mode: every section below is a named part. With the "performance" checkbox on,
-// the section that is playing loops until sendSignal('go') moves on at the next bar line, and
-// sendSignal('go', 'solo') jumps to a part by name (see the README for the list). With the checkbox
-// off the waits are inert and the song plays exactly as written, so exports are unchanged. ---
-let openPart = null;
-function part(name) {
-    if (openPart) waitForSignal('go', { loop: 'part', quantize: 'bar' });   // close the previous part: loop it until told to go on
-    definePartStart(name);
-    openPart = name;
-}
-
-// Italo-disco drums: snare on beats 2 & 4, hi-hats on the 2/4 and 3/4 of every beat.
-function italoHats(beats) {
-    hihat.steps(4, [ , , fs3, fs3 ].repeat(beats - 1));
-}
-function italoSnare(beats) {
-    snare.steps(1, [ , d3, , d3 ].repeat(beats / 4 - 1));
-}
-// simple end-of-phrase fill: the normal backbeat, plus ONE extra snare between the last two beats of the round
-function italoSnareFillA(beats) {
-    const n = [];
-    for (let b = 1; b < beats; b += 2) n.push([ b, d3 ]);   // backbeats: beats 2, 4, ... (0-indexed odd)
-    n.push([ beats - 1.5, d3 ]);                            // extra snare between beat 31 and 32
-    snare.play(n);
-}
-// comprehensive transition fill: last two beats follow the hi-hats (.5 & .75); no snare on the final downbeat (kick only)
-function italoSnareFillB(beats) {
-    const bars = beats / 4;
-    const n = [];
-    for (let b = 0; b < bars - 1; b++) n.push([ b * 4 + 1, d3 ], [ b * 4 + 3, d3 ]);
-    const L = (bars - 1) * 4;
-    n.push([ L + 1, d3 ],
-           [ L + 2.5, d3 ], [ L + 2.75, d3 ],
-           [ L + 3.5, d3 ], [ L + 3.75, d3 ]);
-    snare.play(n);
-}
-
-function playPadlead() {
-    padlead.play([[ 2.50, a6(0.53, 72) ],
-    [ 3.01, c7(0.48, 94) ],
-    [ 4.01, d7(0.94, 97) ],
-    [ 4.95, c7(0.45, 83) ],
-    [ 5.41, a6(0.54, 75) ],
-    [ 5.99, c7(0.69, 88) ],
-    [ 6.91, d7(0.56, 82) ],
-    [ 7.50, c7(0.60, 98) ],
-    [ 10.48, a6(0.47, 83) ],
-    [ 10.98, c7(0.58, 94) ],
-    [ 12.04, d7(1.08, 100) ],
-    [ 13.04, c7(0.36, 77) ],
-    [ 13.49, a6(0.40, 60) ],
-    [ 13.94, c7(0.64, 78) ],
-    [ 14.93, d7(0.44, 87) ],
-    [ 15.45, f7(1.11, 95) ],
-    [ 17.02, e7(0.42, 87) ],
-    [ 18.00, c7(0.56, 97) ],
-    [ 18.47, d7(0.54, 87) ],
-    [ 19.46, f7(1.08, 92) ],
-    [ 20.93, e7(0.50, 93) ],
-    [ 21.91, c7(0.53, 98) ],
-    [ 22.40, d7(0.65, 87) ],
-    [ 23.42, f7(0.92, 88) ],
-    [ 24.93, e7(0.62, 92) ],
-    [ 25.95, c7(0.45, 94) ],
-    [ 26.43, d7(0.71, 87) ],
-    [ 27.42, a6(0.68, 89) ],
-    [ 28.47, g6(0.73, 93) ],
-    [ 29.45, f6(0.37, 68) ],
-    [ 30.01, g6(0.50, 87) ],
-    [ 30.47, a6(0.54, 83) ],
-    [ 31.01, c7(0.62, 97) ]].quantize(4));
-}
-
-// Third-below (fourth where the chord needs it) harmony for the lead, used ONLY in the
-// last chorus round. Chords per pass: Dm(0-8) F(8-16) G(16-24) A#(24-28) C(28-32).
-function playPadleadHarmony() {
-    padlead.play([[ 2.50, f6(0.53, 70) ],
-    [ 3.01, a6(0.48, 70) ],
-    [ 4.01, a6(0.94, 70) ],
-    [ 4.95, a6(0.45, 70) ],
-    [ 5.41, f6(0.54, 70) ],
-    [ 5.99, a6(0.69, 70) ],
-    [ 6.91, a6(0.56, 70) ],
-    [ 7.50, a6(0.60, 70) ],
-    [ 10.48, f6(0.47, 70) ],
-    [ 10.98, a6(0.58, 70) ],
-    [ 12.04, a6(1.08, 70) ],
-    [ 13.04, a6(0.36, 70) ],
-    [ 13.49, f6(0.40, 70) ],
-    [ 13.94, a6(0.64, 70) ],
-    [ 14.93, a6(0.44, 70) ],
-    [ 15.45, c7(1.11, 70) ],
-    [ 17.02, c7(0.42, 70) ],
-    [ 18.00, g6(0.56, 70) ],
-    [ 18.47, b6(0.54, 70) ],
-    [ 19.46, d7(1.08, 70) ],
-    [ 20.93, b6(0.50, 70) ],
-    [ 21.91, g6(0.53, 70) ],
-    [ 22.40, b6(0.65, 70) ],
-    [ 23.42, d7(0.92, 70) ],
-    [ 24.93, c7(0.62, 70) ],
-    [ 25.95, a6(0.45, 70) ],
-    [ 26.43, as6(0.71, 70) ],
-    [ 27.42, f6(0.68, 70) ],
-    [ 28.47, e6(0.73, 70) ],
-    [ 29.45, c6(0.37, 70) ],
-    [ 30.01, e6(0.50, 70) ],
-    [ 30.47, e6(0.54, 70) ],
-    [ 31.01, a6(0.62, 70) ]].quantize(4));
-}
-
-
-
-
-
-// one silent bar at the top: set the opening stage (lone hero, dark, no floor/lights)
-// and let the first command type in over the silence before the beat drops
-setVisual('uCrowd', 0); setVisual('uZoom', 0); setVisual('uCamMove', 0); setVisual('uLights', 0); setVisual('uFloor', 0); setVisual('uHero', 0); setVisual('uItalo', 0); setVisual('uRunning', 0); setVisual('uEndPose', 0);
-agentPrompt("four-on-the-floor kick in D, 125 BPM", "kick locked in - dark empty stage");
-await waitDuration(4);
-
-// === PART "intro" (bars 1-8): drums + pulsing intro bass, played twice ===
-const introKick  = createTrack(0, 4);
-const introHihat = createTrack(1, 4);
-const introBass  = createTrack(3, 4);
-
-part('intro');
-for (let introRep = 0; introRep < 2; introRep++) {
-    if (introRep === 1) setVisual('uHero', 1, 2.0);   // second intro round: the lone dancer steps into the spotlight
-    introBass.steps(4, [
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d3(0.2), d3(0.1), d3(0.2), d3(0.1),
-    ].repeat(3));
-
-    introHihat.steps(4, [ , , fs3, null ].repeat(15));
-    if (introRep === 1) {
-        await introKick.steps(4, [ c2, , , , ].repeat(11));   // 12 beats — to beat 32
-        agentPrompt("add a fat pad, chords Dm F G Bb C", "pad in - lush detuned saws");   // one bar before the verse
-        await introKick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 36
-    } else {
-        await introKick.steps(4, [ c2, , , , ].repeat(11));   // 12 beats — to beat 16
-        agentPrompt("bring a dancer into the spotlight", "spotlight up - one dancer stepping in");   // one bar before the dancer enters
-        await introKick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 20
-    }
-}
-
-// === PART "verse" (bars 9-16, no lead) then PART "chorus" (bars 17-24, adds padlead lead) — progression Dm-F-G-A#-C ===
-for (let rep = 0; rep < 4; rep++) {
-    part(['verse', 'chorus', 'chorus2', 'chorus3'][rep]);
-    if (rep >= 1) playPadlead();
-    if (rep === 3) playPadleadHarmony();
-
-    // Section 1: D minor
-    hihat.steps(4, [ , , fs3, null ].repeat(7));
-    pad.steps(4, [ [d4, f4, a4], , [d4, f4, a4], , ].repeat(7));
-    bass.steps(4, [ d2, null, d3, null ].repeat(7));
-    await kick.steps(4, [ c2, , , , ].repeat(7));
-
-    // Section 2: F major
-    if (rep === 1) agentPrompt("zoom out - bring on the whole crowd", "revealing the dancers");   // beat 76: one bar before the reveal
-    if (rep === 2) setVisual('uCamMove', 1, 6.0);                                                 // beat 108: camera starts its slow orbit
-    if (rep === 3) agentPrompt("lay down the tiled dancefloor", "glossy tiles, reflections on");  // beat 140: one bar before the floor
-    hihat.steps(4, [ , , fs3, null ].repeat(7));
-    pad.steps(4, [ [f4, a4, c5], , [f4, a4, c5], , ].repeat(7));
-    bass.steps(4, [ f2, null, f3, null ].repeat(7));
-    await kick.steps(4, [ c2, , , , ].repeat(7));
-
-    // Section 3: G major
-    if (rep === 1) { setVisual('uCrowd', 1, 3.0); setVisual('uZoom', 1, 4.5); }          // beat 84: crowd revealed, camera pulls back
-    if (rep === 2) agentPrompt("hit the disco lights", "rig sweeping - four colours");   // beat 116: one bar before the lights
-    if (rep === 3) setVisual('uFloor', 1, 3.0);                                          // beat 148: floor fades in
-    hihat.steps(4, [ , , fs3, null ].repeat(7));
-    pad.steps(4, [ [g4, b4, d5], , [g4, b4, d5], , ].repeat(7));
-    bass.steps(4, [ g2, null, g3, null ].repeat(7));
-    await kick.steps(4, [ c2, , , , ].repeat(7));
-
-    // Section 4a: A# major
-    if (rep === 2) setVisual('uLights', 1, 3.5);   // beat 124: disco rig comes up
-    hihat.steps(4, [ , , fs3, null ].repeat(3));
-    pad.steps(4, [ [as4, d5, f5], , [as4, d5, f5], , ].repeat(3));
-    bass.steps(4, [ as2, null, as3, null ].repeat(3));
-    await kick.steps(4, [ c2, , , , ].repeat(3));
-
-    // Section 4b: C major
-    if (rep === 0) agentPrompt("bring in a bright lead up top", "lead in, octave 6-7");           // beat 64: one bar before the chorus lead
-    if (rep === 1) agentPrompt("now start moving the camera", "slow orbit - engaged");            // beat 96: one bar before the camera move
-    if (rep === 2) agentPrompt("harmonize that lead in thirds", "thirds added under the lead");   // beat 128: one bar before the harmony
-    if (rep === 3) agentPrompt("Jump-style stab chords, drop the pad", "'84 brass stabs - here we go");   // beat 160: one bar before the break
-    hihat.steps(4, [ , , fs3, null ].repeat(3));
-    pad.steps(4, [ [c5, e5, g5], , [c5, e5, g5], , ].repeat(3));
-    bass.steps(4, [ c3, null, c4, null ].repeat(3));
-    await kick.steps(4, [ c2, , , , ].repeat(3));
-}
-
-// === PART "break" (bars 25-32): jumppad chord take over intro bass; then PART "drop" (bars 33-40): same chords + italo-disco bass + recorded padlead lead ===
-function playJumpChords() {
-    createTrack(5).play([[ 1.04, d6(0.53, 95) ],
-    [ 1.03, a5(0.57, 99) ],
-    [ 1.04, f5(0.56, 99) ],
-    [ 1.98, e5(1.33, 88) ],
-    [ 1.97, g5(1.34, 98) ],
-    [ 2.00, c6(1.35, 97) ],
-    [ 3.97, b5(1.05, 100) ],
-    [ 3.98, d5(1.04, 89) ],
-    [ 3.97, g5(1.08, 102) ],
-    [ 5.41, g5(0.58, 104) ],
-    [ 5.44, d5(0.60, 89) ],
-    [ 5.43, b5(0.63, 104) ],
-    [ 6.43, d5(1.50, 90) ],
-    [ 6.41, as5(1.54, 94) ],
-    [ 6.42, f5(1.56, 82) ],
-    [ 8.91, f5(0.69, 92) ],
-    [ 8.91, c5(0.73, 98) ],
-    [ 8.90, a5(0.76, 94) ],
-    [ 9.97, e5(1.62, 87) ],
-    [ 9.95, c5(1.68, 88) ],
-    [ 9.94, g5(1.71, 94) ],
-    [ 12.06, g5(1.05, 90) ],
-    [ 12.05, b4(1.06, 99) ],
-    [ 12.03, d5(1.09, 95) ],
-    [ 13.48, b4(0.56, 99) ],
-    [ 13.50, g5(0.57, 97) ],
-    [ 13.47, d5(0.68, 83) ],
-    [ 14.46, as4(1.37, 96) ],
-    [ 14.45, d5(1.38, 63) ],
-    [ 14.48, f5(1.38, 88) ]].quantize(4));
-}
-
-function introBassLine() {
-    introBass.steps(4, [
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d3(0.2), d3(0.1), d3(0.2), d3(0.1),
-    ].repeat(3));
-}
-
-// Italo-disco octave-pulse bass, roots following the recorded chords: D C G A# F C G A#
-function italoBassLine() {
-    bass.steps(2, [
-        d2, d3, d2, d3,      c2, c3, c2, c3,
-        g2, g3, g2, g3,      as2, as3, as2, as3,
-        f2, f3, f2, f3,      c2, c3, c2, c3,
-        g2, g3, g2, g3,      as2, as3, as2, as3,
-    ]);
-}
-
-function introHats() {
-    introHihat.steps(4, [ , , fs3, null ].repeat(15));
-}
-
-// Playthrough 1 - the recorded take (recording armed for this bar)
-part('break');
-playJumpChords();
-introHats();
-introBassLine();
-await introKick.steps(4, [ c2, , , , ].repeat(15));
-
-
-// Playthrough 2 - repeat as-is (intro bass + drums)
-playJumpChords();
-introHats();
-introBassLine();
-await introKick.steps(4, [ c2, , , , ].repeat(11));   // 12 beats — to beat 192
-agentPrompt("italo octave bass + a live lead take", "recording armed - play it");   // one bar before the drop
-await introKick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 196
-
-
-// "finale" lead melody (recorded on padlead, ch4), spans bars 33-40
-part('drop');
-createTrack(4).play([[ 0.56, d6(0.44, 69) ],
-[ 0.55, d7(0.46, 74) ],
-[ 1.03, f6(0.41, 70) ],
-[ 1.03, f7(0.48, 77) ],
-[ 1.51, g7(0.51, 84) ],
-[ 1.49, g6(0.59, 67) ],
-[ 6.52, f7(0.40, 70) ],
-[ 6.54, f6(0.41, 59) ],
-[ 7.00, g7(0.40, 79) ],
-[ 6.96, g6(0.48, 78) ],
-[ 7.49, a7(0.31, 69) ],
-[ 7.50, a6(0.44, 89) ],
-[ 8.45, c7(0.54, 82) ],
-[ 8.45, c8(0.56, 84) ],
-[ 8.97, a7(0.40, 77) ],
-[ 9.00, a6(0.44, 78) ],
-[ 9.48, g7(0.45, 87) ],
-[ 9.49, g6(0.48, 70) ],
-[ 14.01, as6(0.42, 83) ],
-[ 14.03, as7(0.53, 104) ],
-[ 14.47, a7(0.47, 78) ],
-[ 14.53, a6(0.46, 62) ],
-[ 15.01, g6(0.44, 72) ],
-[ 14.95, g7(0.50, 87) ],
-[ 15.49, f6(0.40, 79) ],
-[ 15.46, f7(0.42, 84) ],
-[ 16.45, d6(0.50, 69) ],
-[ 16.44, d7(0.53, 75) ],
-[ 17.00, f6(0.42, 82) ],
-[ 16.99, f7(0.50, 88) ],
-[ 17.43, g7(0.64, 95) ],
-[ 17.45, g6(0.65, 87) ],
-[ 22.55, f6(0.42, 67) ],
-[ 22.52, f7(0.51, 60) ],
-[ 23.04, g7(0.44, 92) ],
-[ 23.03, g6(0.45, 72) ],
-[ 23.53, a7(0.52, 75) ],
-[ 23.50, a6(0.57, 79) ],
-[ 24.48, c7(0.47, 84) ],
-[ 24.47, c8(0.52, 100) ],
-[ 24.97, a6(0.45, 87) ],
-[ 24.96, a7(0.46, 89) ],
-[ 25.41, g7(0.64, 84) ],
-[ 25.44, g6(0.63, 70) ],
-[ 29.56, g7(0.73, 105) ],
-[ 29.59, g6(0.74, 82) ],
-[ 30.47, a6(0.37, 67) ],
-[ 30.46, a7(0.44, 79) ],
-[ 31.00, c8(0.39, 97) ],
-[ 30.97, c7(0.45, 82) ],
-[ 31.45, d7(0.37, 90) ],
-[ 31.44, d8(0.41, 107) ]].quantize(4));
-
-
-// Playthroughs 3 & 4 - italo-disco bass instead of intro bass
-setVisual('uItalo', 1);   // italo-disco: arms go double-time, flipping opposite every beat (through the breakdown)
-agentPrompt("dancers - pump the arms double-time", "arms flipping opposite on every beat");   // the drop: italo arm move introduced
-for (let r = 0; r < 2; r++) {
-    playJumpChords();
-    italoHats(16);
-    if (r === 1) italoSnareFillB(16); else italoSnareFillA(16);   // 2nd round hands off to the breakdown → comprehensive fill; else simple fill
-    italoBassLine();
-    if (r === 1) {
-        await introKick.steps(4, [ c2, , , , ].repeat(11));   // 12 beats — to beat 224
-        agentPrompt("warmer pad, low-pass filter", "softened - top rolled off");   // one bar before the breakdown
-        await introKick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 228
-    } else {
-        await introKick.steps(4, [ c2, , , , ].repeat(15));
-    }
-}
-
-// === PART "breakdown" (played twice): warm low-pass pad chords + padlead melody over the beat ===
-part('breakdown');
-for (let f2 = 0; f2 < 2; f2++) {
-    // finale2 CHORDS -> WARM PAD (ch6), one octave up, tidied to the 2-beat grid
-    warmpad.play([
-        [ 0,  d6(1.9, 72), f6(1.9, 72), a6(1.9, 72) ],    // Dm
-        [ 2,  c6(1.9, 72), e6(1.9, 72), g6(1.9, 72) ],    // C
-        [ 4,  g5(1.9, 72), b5(1.9, 72), d6(1.9, 72) ],    // G
-        [ 6,  as5(1.9, 72), d6(1.9, 72), f6(1.9, 72) ],   // A#/Bb
-        [ 8,  f6(1.9, 72), a6(1.9, 72), c7(1.9, 72) ],    // F
-        [ 10, c6(1.9, 72), e6(1.9, 72), g6(1.9, 72) ],    // C
-        [ 12, g5(1.9, 72), b5(1.9, 72), d6(1.9, 72) ],    // G
-        [ 14, as5(1.9, 72), d6(1.9, 72), f6(1.9, 72) ],   // A#/Bb
-    ]);
-
-    // finale2 MELODY -> PADLEAD (ch4), quantized to fix the off-beat timing
-    createTrack(4).play([[ 0.60, f7(0.56, 79) ],
-    [ 1.03, e7(0.47, 89) ],
-    [ 1.49, c7(0.50, 98) ],
-    [ 1.97, g6(4.51, 88) ],
-    [ 6.49, f6(0.56, 83) ],
-    [ 7.01, g6(0.40, 102) ],
-    [ 7.43, a6(1.00, 100) ],
-    [ 8.48, c7(0.56, 108) ],
-    [ 8.98, a6(0.44, 97) ],
-    [ 9.45, g6(0.99, 103) ],
-    [ 10.47, c6(0.73, 78) ],
-    [ 11.46, d6(1.02, 103) ],
-    [ 12.47, f6(0.99, 94) ],
-    [ 13.50, g6(0.98, 110) ],
-    [ 14.52, a6(0.91, 114) ]].quantize(4));
-
-    // 2nd round only: melody climbs on the last beat — c7 then d7, half a beat each
-    if (f2 === 1) {
-        createTrack(4).play([[ 15, c7(0.5, 108) ], [ 15.5, d7(0.5, 114) ]]);
-    }
-
-    // finale beat (drums + italo bass)
-    italoHats(16);
-    if (f2 === 1) italoSnareFillB(16); else italoSnareFillA(16);   // 2nd round hands off to the finale → comprehensive fill; else simple fill
-    italoBassLine();
-    if (f2 === 1) {
-        await introKick.steps(4, [ c2, , , , ].repeat(11));   // 12 beats — to beat 256
-        agentPrompt("big finale - layer all the takes", "stacking pad, lead, stabs...");   // one bar before the finale
-        await introKick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 260
-    } else {
-        await introKick.steps(4, [ c2, , , , ].repeat(15));
-    }
-}
-
-// === PART "finale" (the real finale — 6 variation rounds, each 32 beats): built from the recorded warm pad + lead + jumppad takes ===
-
-function finaleLead(ending) {
-const notes = [[ 1.09, d6(0.45, 79) ],
-[ 0.56, a5(1.19, 83) ],
-[ 1.54, f6(0.47, 92) ],
-[ 2.06, e6(0.52, 78) ],
-[ 2.56, c6(0.42, 89) ],
-[ 2.98, a5(0.48, 78) ],
-[ 3.50, d6(1.02, 88) ],
-[ 4.46, g5(0.48, 75) ],
-[ 4.96, c6(0.57, 74) ],
-[ 5.47, d6(0.50, 84) ],
-[ 6.05, b5(0.62, 69) ],
-[ 6.52, d6(0.45, 67) ],
-[ 6.97, g6(0.30, 93) ],
-[ 7.50, f6(0.96, 105) ],
-[ 8.43, a5(0.54, 63) ],
-[ 8.93, d6(0.50, 79) ],
-[ 9.42, f6(0.56, 90) ],
-[ 9.92, e6(0.47, 84) ],
-[ 10.40, c6(0.56, 72) ],
-[ 10.91, a5(0.59, 69) ],
-[ 11.46, d6(1.02, 92) ],
-[ 12.43, g5(0.57, 75) ],
-[ 12.98, c6(0.51, 82) ],
-[ 13.45, d6(0.56, 83) ],
-[ 13.96, g5(0.64, 69) ],
-[ 14.48, b5(0.59, 82) ],
-[ 15.03, d6(0.45, 83) ],
-[ 15.50, a5(0.71, 92) ],
-[ 16.46, a5(1.03, 82) ],
-[ 16.97, d6(0.58, 72) ],
-[ 17.51, f6(0.54, 89) ],
-[ 17.98, e6(0.47, 79) ],
-[ 18.44, c6(0.59, 79) ],
-[ 18.95, a5(0.56, 72) ],
-[ 19.50, d6(1.03, 89) ],
-[ 20.49, g5(0.52, 72) ],
-[ 20.98, b5(0.50, 88) ],
-[ 21.43, d6(0.51, 77) ],
-[ 21.93, g5(0.51, 72) ],
-[ 22.40, b5(0.60, 63) ],
-[ 22.95, g6(0.35, 83) ],
-[ 23.51, f6(1.06, 93) ],
-[ 24.95, d6(0.52, 74) ],
-[ 24.44, as5(1.04, 67) ],
-[ 25.48, f6(0.52, 87) ],
-[ 25.95, e6(0.58, 83) ],
-[ 26.46, c6(0.56, 65) ],
-[ 26.93, a5(0.51, 77) ],
-[ 27.48, d6(0.98, 89) ],
-[ 28.41, g5(1.08, 62) ],
-[ 28.95, c6(0.54, 87) ],
-[ 29.46, d6(0.56, 77) ],
-[ 29.98, g5(0.77, 87) ],
-[ 30.44, b5(0.59, 74) ],
-[ 30.97, d6(0.70, 83) ]];
-    if (ending) {
-        // keep through the D that lands on the kick stab (beat 29.5), drop the notes after it, and let it ring out
-        const trimmed = notes.filter(row => row[0] <= 29.5);
-        trimmed[trimmed.length - 1] = [ 29.46, d6(1.2, 77) ];   // ends ~31.9, before loopHere at beat 32 so the note-off fires
-        createTrack(4).play(trimmed.quantize(4));
-    } else {
-        createTrack(4).play(notes.quantize(4));
-    }
-}
-
-function finaleWarmpad() {
-createTrack(6).play([[ 0.88, a5(0.92, 72) ],
-[ 0.89, d6(0.99, 62) ],
-[ 0.91, f6(1.03, 67) ],
-[ 2.02, g5(1.23, 75) ],
-[ 1.98, e6(1.28, 74) ],
-[ 1.97, c6(1.32, 88) ],
-[ 3.53, c6(1.67, 74) ],
-[ 3.58, g5(1.73, 78) ],
-[ 5.51, g5(2.54, 72) ],
-[ 5.53, b5(2.61, 83) ],
-[ 3.57, d6(4.58, 88) ],
-[ 8.97, a5(0.69, 84) ],
-[ 8.97, f6(0.73, 87) ],
-[ 8.96, d6(0.85, 79) ],
-[ 9.98, g5(1.15, 84) ],
-[ 9.97, c6(1.17, 83) ],
-[ 9.99, e6(1.15, 79) ],
-[ 12.02, g5(1.14, 82) ],
-[ 12.01, c6(1.15, 84) ],
-[ 12.01, d6(1.19, 82) ],
-[ 13.45, g5(2.35, 74) ],
-[ 13.45, b5(2.38, 88) ],
-[ 13.44, d6(2.48, 70) ],
-[ 16.93, a5(0.73, 83) ],
-[ 16.92, f6(0.79, 84) ],
-[ 16.92, d6(0.83, 79) ],
-[ 17.97, g5(1.22, 87) ],
-[ 17.95, c6(1.29, 89) ],
-[ 17.95, e6(1.33, 87) ],
-[ 20.06, c6(1.15, 84) ],
-[ 20.05, g5(1.22, 89) ],
-[ 20.08, d6(1.25, 83) ],
-[ 21.56, g5(2.26, 65) ],
-[ 21.56, b5(2.33, 79) ],
-[ 21.55, d6(2.37, 59) ],
-[ 24.95, as5(0.63, 92) ],
-[ 24.96, f6(0.70, 90) ],
-[ 24.94, d6(0.79, 89) ],
-[ 25.98, g5(1.43, 87) ],
-[ 25.95, c6(1.49, 89) ],
-[ 25.97, e6(1.66, 88) ],
-[ 28.06, g6(1.17, 88) ],
-[ 28.03, c6(1.26, 92) ],
-[ 28.06, d6(1.27, 83) ],
-[ 29.56, g6(2.23, 88) ],
-[ 29.54, b5(2.27, 93) ],
-[ 29.54, d6(2.36, 83) ]].quantize(4));
-}
-
-function finaleJump() {
-createTrack(5).play([[ 1.00, f6(0.73, 92) ],
-[ 0.99, a5(0.74, 92) ],
-[ 0.97, d6(0.81, 84) ],
-[ 2.57, c6(0.86, 95) ],
-[ 2.58, e6(0.87, 89) ],
-[ 2.59, a5(0.86, 95) ],
-[ 4.06, g5(0.89, 98) ],
-[ 4.05, c6(0.92, 99) ],
-[ 4.06, d6(0.96, 94) ],
-[ 5.51, g5(0.69, 87) ],
-[ 5.48, d6(0.74, 79) ],
-[ 5.50, b5(0.74, 87) ],
-[ 6.54, g5(0.80, 90) ],
-[ 6.51, b5(0.85, 87) ],
-[ 6.52, d6(0.87, 75) ],
-[ 7.99, d6(0.51, 102) ],
-[ 8.00, a5(0.50, 103) ],
-[ 8.01, f6(0.48, 102) ],
-[ 8.99, f6(0.73, 102) ],
-[ 8.99, a5(0.74, 98) ],
-[ 8.98, d6(0.77, 98) ],
-[ 10.54, c6(0.65, 98) ],
-[ 10.55, a5(0.68, 102) ],
-[ 10.55, e6(0.71, 94) ],
-[ 12.04, g6(0.98, 98) ],
-[ 12.03, c6(1.04, 95) ],
-[ 12.05, d6(1.04, 92) ],
-[ 13.47, b5(0.67, 97) ],
-[ 13.49, g6(0.65, 95) ],
-[ 13.47, d6(0.70, 90) ],
-[ 14.53, g6(0.77, 98) ],
-[ 14.51, b5(0.85, 94) ],
-[ 14.52, d6(0.87, 83) ],
-[ 16.02, a5(0.41, 97) ],
-[ 15.99, d6(0.45, 93) ],
-[ 16.02, f6(0.44, 94) ],
-[ 17.00, a5(0.59, 98) ],
-[ 17.00, f6(0.62, 100) ],
-[ 16.97, d6(0.65, 94) ],
-[ 18.58, a5(0.52, 102) ],
-[ 18.58, e6(0.58, 94) ],
-[ 18.57, c6(0.59, 99) ],
-[ 20.06, g5(0.92, 102) ],
-[ 20.07, c6(0.91, 98) ],
-[ 20.07, d6(0.92, 97) ],
-[ 21.57, g5(0.50, 92) ],
-[ 21.57, b5(0.53, 89) ],
-[ 21.56, d6(0.54, 87) ],
-[ 22.60, g5(0.56, 99) ],
-[ 22.59, b5(0.62, 103) ],
-[ 22.59, d6(0.63, 97) ],
-[ 24.04, as5(0.37, 101) ],
-[ 24.04, f6(0.46, 94) ],
-[ 24.02, d6(0.51, 92) ],
-[ 25.00, f6(0.96, 94) ],
-[ 24.99, as5(0.98, 99) ],
-[ 25.00, d6(1.04, 87) ],
-[ 26.58, c6(0.99, 99) ],
-[ 26.55, g5(1.03, 100) ],
-[ 26.58, e6(1.00, 100) ],
-[ 28.03, g5(1.08, 100) ],
-[ 28.02, c6(1.10, 93) ],
-[ 28.02, d6(1.15, 95) ],
-[ 29.55, g5(1.66, 98) ],
-[ 29.54, d6(1.69, 95) ],
-[ 29.55, b5(1.72, 99) ]].quantize(4));
-}
-
-// --- beat + bass builders for the finale variations (each spans 32 beats = one round) ---
-function finaleHats(beats) {
-    beats = beats || 32;
-    // intro-bass rounds: hi-hat on every step with no kick — half, normal, half velocity
-    hihat.steps(4, [ , fs3(0.1,30), fs3(0.1,100), fs3(0.1,50), ].repeat(beats - 1));
-}
-function finaleKick() {
-    return kick.steps(4, [ c2, , , , ].repeat(31));   // awaited beat-keeper, 32 beats
-}
-// snare on every second beat (beats 2 & 4) for the given number of beats
-function finaleBackbeat(beats) {
-    snare.steps(1, [ , d3, , d3 ].repeat(beats / 4 - 1));
-}
-// backbeat for 28 beats, then a rolling 16th-note snare crescendo over the last 4 beats (into the italo section)
-function finaleBackbeatFill() {
-    const n = [];
-    for (let b = 1; b < 28; b += 2) n.push([ b, d3(0.5) ]);
-    for (let i = 0; i < 16; i++) {
-        const vel = 55 + Math.round(i / 15 * 60);   // crescendo 55 -> 115
-        n.push([ 28 + i * 0.25, d3(0.2, vel) ]);
-    }
-    snare.play(n);
-}
-// final-round kick: every beat for 28 beats, then ONLY on the jump-pad stabs (beats 28 & 29.5)
-function finaleKickEnding() {
-    const steps = [];
-    for (let s = 0; s < 128; s++) {
-        const beat = s / 4;
-        let hit = null;
-        if (beat < 28) { if (s % 4 === 0) hit = c2; }
-        else if (beat === 28 || beat === 29.5) hit = c2;
-        steps.push(hit);
-    }
-    return kick.steps(4, steps);   // awaited beat-keeper, 32 beats
-}
-// italo-disco octave-pulse bass following the finale chords: Dm C G (x3), then A# C G
-function finaleItaloBass() {
-    bass.steps(2, [
-        d2, d3, d2, d3,     c2, c3, c2, c3,     g2, g3, g2, g3,     g2, g3, g2, g3,
-        d2, d3, d2, d3,     c2, c3, c2, c3,     g2, g3, g2, g3,     g2, g3, g2, g3,
-        d2, d3, d2, d3,     c2, c3, c2, c3,     g2, g3, g2, g3,     g2, g3, g2, g3,
-        as2, as3, as2, as3, c2, c3, c2, c3,     g2, g3, g2, g3,     g2, g3, g2, g3,
-    ]);
-}
-// intro-style D pedal for 6 bars, then descending A#, C, G to close the round
-function finaleDescBass() {
-    const dbar = [
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d3(0.2), d3(0.1), d3(0.2), d3(0.1),
-    ];
-    const closebars = [
-        as2(0.2), as2(0.1), as2(0.2), as2(0.1),
-        as2(0.2), as2(0.1), as2(0.2), as2(0.1),
-        c2(0.2), c2(0.1), c2(0.2), c2(0.1),
-        c2(0.2), c2(0.1), c2(0.2), c2(0.1),
-        g2(0.2), g2(0.1), g2(0.2), g2(0.1),
-        g2(0.2), g2(0.1), g2(0.2), g2(0.1),
-        g2(0.2), g2(0.1), g2(0.2), g2(0.1),
-        g3(0.2), g3(0.1), g3(0.2), g3(0.1),
-    ];
-    bass.steps(4, [ ...dbar, ...dbar, ...dbar, ...dbar, ...dbar, ...dbar, ...closebars ]);
-}
-
-// final round: descending pulse through beat 28 (D pedal, A#, C), then last 4 beats = two sustaining G stabs
-// on the jump-pad hits (beats 28 & 29.5), the second an octave down
-function finaleDescBassEnding() {
-    const dbar = [
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d3(0.2), d3(0.1), d3(0.2), d3(0.1),
-    ];
-    const pulse = [
-        ...dbar, ...dbar, ...dbar, ...dbar, ...dbar, ...dbar,   // 24 beats D pedal
-        as2(0.2), as2(0.1), as2(0.2), as2(0.1),                 // beat 24
-        as2(0.2), as2(0.1), as2(0.2), as2(0.1),                 // beat 25
-        c2(0.2), c2(0.1), c2(0.2), c2(0.1),                     // beat 26
-        c2(0.2), c2(0.1), c2(0.2), c2(0.1),                     // beat 27
-    ];
-    bass.steps(4, pulse);                                        // 28 beats
-    bass.play([[ 28, g3(1.5) ], [ 29.5, g2(2.5) ]]);            // two sustaining G stabs, 2nd an octave down
-}
-
-// plain intro-style D pedal for a full round (32 beats)
-function finaleIntroBass() {
-    bass.steps(4, [
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d2(0.2), d2(0.1), d2(0.2), d2(0.1),
-        d3(0.2), d3(0.1), d3(0.2), d3(0.1),
-    ].repeat(7));
-}
-
-function finaleStrings() {
 createTrack(6).play([
-[ 0.00, a5(1.72, 89) ],
-[ 0.00, d6(1.91, 88) ],
-[ 0.01, f6(1.91, 89) ],
-[ 1.98, g5(1.69, 84) ],
-[ 1.97, c6(1.74, 87) ],
-[ 1.96, e6(1.78, 88) ],
-[ 3.94, c6(1.23, 72) ],
-[ 3.99, g5(1.22, 82) ],
-[ 3.97, d6(1.29, 87) ],
-[ 5.48, g5(2.20, 78) ],
-[ 5.45, b5(2.35, 89) ],
-[ 5.45, d6(2.36, 79) ],
-[ 8.02, a5(1.77, 95) ],
-[ 8.03, f6(1.84, 89) ],
-[ 7.99, d6(1.90, 102) ],
-[ 10.06, a5(1.54, 69) ],
-[ 10.06, c6(1.60, 83) ],
-[ 10.07, e6(1.61, 84) ],
-[ 11.96, c6(1.22, 70) ],
-[ 12.00, g5(1.22, 93) ],
-[ 11.97, d6(1.32, 87) ],
-[ 13.56, g5(1.92, 82) ],
-[ 13.53, b5(2.16, 88) ],
-[ 13.52, d6(2.21, 64) ],
-[ 15.96, a5(1.69, 94) ],
-[ 15.99, f6(1.69, 87) ],
-[ 15.94, d6(1.84, 89) ],
-[ 18.02, a5(1.66, 90) ],
-[ 18.01, e6(1.72, 84) ],
-[ 17.99, c6(1.74, 88) ],
-[ 19.99, g5(1.11, 88) ],
-[ 19.97, c6(1.16, 70) ],
-[ 19.98, d6(1.22, 84) ],
-[ 21.51, g5(2.00, 83) ],
-[ 21.49, b5(2.03, 88) ],
-[ 21.49, d6(2.19, 68) ],
-[ 23.93, as5(1.74, 98) ],
-[ 23.96, f6(1.83, 82) ],
-[ 23.91, d6(1.89, 72) ],
-[ 26.01, g5(1.64, 95) ],
-[ 26.00, c6(1.71, 92) ],
-[ 26.01, e6(1.71, 92) ],
-[ 28.02, g5(1.15, 90) ],
-[ 27.97, c6(1.20, 75) ],
-[ 28.00, d6(1.23, 88) ],
-[ 29.49, g5(2.14, 89) ],
-[ 29.46, d6(2.21, 63) ],
-[ 29.47, b5(2.21, 87) ]].quantize(4));
-}
+[ 0.00, d5(3.12, 65), f5(3.17, 87), a5(3.10, 55) ],
+[ 3.50, c5(2.13, 88), a5(2.15, 70), f5(2.25, 94) ],
+[ 6.00, e5(1.58, 53), g5(1.52, 58), c5(1.61, 60) ],
+[ 8.00, a5(1.98, 72), a4(3.37, 75), d5(3.40, 57), f5(1.98, 67), d6(2.00, 68) ],
+[ 10.00, c6(1.73, 84), a5(1.60, 63), f5(1.29, 65) ],
+[ 12.00, g5(1.60, 79), b5(1.60, 77), d5(1.58, 60) ],
+[ 14.00, e5(1.73, 65), c5(1.66, 74), g5(1.67, 35), a5(0.06, 49) ]]);
 
-function finaleSolo() {
 createTrack(8).play([
-[ 4.50, d6(0.35, 94) ],
-[ 5.00, f6(0.56, 82) ],
-[ 5.50, g6(0.27, 83) ],
-[ 5.86, g6(0.19, 94) ],
-[ 5.91, gs6(0.06, 98) ],
-[ 6.00, a6(0.57, 100) ],
-[ 6.73, g6(0.18, 88) ],
-[ 6.90, a6(0.12, 98) ],
-[ 7.00, f6(0.56, 104) ],
-[ 7.50, d6(0.41, 84) ],
-[ 8.00, g6(2.37, 98) ],
-[ 8.03, f6(0.04, 60) ],
-[ 12.50, g6(1.02, 88) ],
-[ 12.63, gs6(0.22, 88) ],
-[ 13.50, f6(0.41, 87) ],
-[ 14.00, g6(0.56, 110) ],
-[ 14.50, f6(0.47, 70) ],
-[ 15.00, d6(0.52, 77) ],
-[ 15.50, c6(0.47, 64) ],
-[ 16.00, f6(0.60, 108) ],
-[ 17.00, d6(0.76, 105) ],
-[ 17.83, a5(0.05, 49) ],
-[ 18.00, c6(0.56, 110) ],
-[ 18.50, d6(0.53, 89) ],
-[ 19.50, d6(1.48, 105) ],
-[ 21.00, c6(0.75, 99) ],
-[ 21.80, a5(0.27, 79) ],
-[ 22.00, gs5(0.46, 99) ],
-[ 22.50, g5(0.59, 63) ],
-[ 23.00, f5(0.46, 103) ],
-[ 23.50, g5(0.73, 107) ],
-[ 24.50, g5(0.92, 95) ],
-[ 24.64, gs5(0.19, 82) ],
-[ 25.50, f5(0.47, 89) ],
-[ 26.00, d5(0.54, 82) ],
-[ 26.50, c5(0.51, 69) ],
-[ 27.00, f5(0.96, 103) ],
-[ 27.50, a4(0.37, 87) ],
-[ 28.00, c5(0.59, 90) ],
-[ 28.50, d5(0.57, 88) ],
-[ 29.50, d5(1.23, 110) ],
-[ 32.44, gs5(0.11, 88) ],
-[ 32.46, g5(0.05, 60) ],
-[ 32.50, a5(0.41, 92) ],
-[ 33.00, c6(0.45, 102) ],
-[ 33.50, d6(0.27, 79) ],
-[ 33.92, c6(0.21, 94) ],
-[ 34.00, d6(0.50, 69) ],
-[ 34.50, f6(0.41, 105) ],
-[ 35.00, g6(0.31, 108) ],
-[ 35.39, gs6(0.15, 76) ],
-[ 35.40, g6(0.15, 88) ],
-[ 35.50, a6(0.94, 89) ],
-[ 36.54, g6(0.13, 77) ],
-[ 36.71, a6(0.13, 94) ],
-[ 36.85, g6(0.19, 93) ],
-[ 37.00, f6(0.42, 100) ],
-[ 37.50, g6(0.83, 110) ],
-[ 38.31, g6(0.21, 98) ],
-[ 38.39, gs6(0.12, 88) ],
-[ 38.50, a6(0.41, 100) ],
-[ 39.00, c7(0.36, 110) ],
-[ 39.50, d7(0.40, 104) ],
-[ 39.93, c7(0.18, 99) ],
-[ 40.00, d7(0.91, 100) ],
-[ 40.99, c7(0.21, 89) ],
-[ 41.16, d7(0.19, 100) ],
-[ 41.37, c7(0.15, 94) ],
-[ 41.50, a6(0.56, 78) ],
-[ 42.00, gs6(0.58, 89) ],
-[ 42.50, g6(0.54, 87) ],
-[ 43.00, f6(0.47, 94) ],
-[ 43.50, g6(1.79, 107) ],
-[ 45.50, g6(0.92, 75) ],
-[ 45.66, gs6(0.19, 77) ],
-[ 46.50, f6(0.50, 94) ],
-[ 47.00, d6(0.56, 79) ],
-[ 47.50, c6(0.51, 68) ],
-[ 48.00, f6(1.02, 109) ],
-[ 49.00, d6(0.73, 95) ],
-[ 49.50, a5(0.07, 65) ],
-[ 50.00, c6(0.52, 115) ],
-[ 50.50, d6(0.59, 97) ],
-[ 51.50, f6(0.89, 110) ],
-[ 52.50, e6(0.45, 93) ],
-[ 53.00, c6(0.41, 97) ],
-[ 53.50, d6(0.86, 87) ],
-[ 54.50, a5(0.52, 83) ],
-[ 55.00, c6(0.48, 94) ],
-[ 55.50, d6(0.46, 74) ],
-[ 56.00, f6(0.69, 112) ],
-[ 57.00, g6(0.44, 117) ],
-[ 57.50, g6(0.97, 65) ],
-[ 57.63, gs6(0.27, 82) ],
-[ 58.50, f6(0.37, 100) ],
-[ 59.00, d6(0.48, 88) ],
-[ 59.50, c6(0.64, 69) ],
-[ 60.00, d6(3.00, 95) ]]);
-}
+[ 0.50, d5(0.57, 70) ],
+[ 1.00, f5(0.13, 70) ],
+[ 2.00, g5(0.46, 74) ],
+[ 2.91, gs5(0.02, 72) ],
+[ 3.00, a5(0.34, 77) ],
+[ 3.50, c6(0.70, 87) ],
+[ 4.44, c6(0.07, 63) ],
+[ 4.50, d6(0.46, 82) ],
+[ 5.00, a5(0.19, 63) ],
+[ 5.21, c6(0.07, 23) ],
+[ 6.00, a5(0.45, 89) ],
+[ 6.50, b5(0.54, 89) ],
+[ 7.50, c6(0.96, 88) ],
+[ 8.56, b5(0.07, 55) ],
+[ 8.72, c6(0.16, 69) ],
+[ 8.91, b5(0.06, 67) ],
+[ 9.00, a5(0.28, 82) ],
+[ 9.25, a5(0.22, 10) ],
+[ 9.50, b5(0.88, 97) ],
+[ 10.50, a5(0.50, 69) ],
+[ 11.00, g5(0.28, 78) ],
+[ 11.40, g5(0.18, 88) ],
+[ 11.50, a5(0.89, 79) ],
+[ 12.52, g5(0.12, 64) ],
+[ 12.69, a5(0.18, 77) ],
+[ 12.89, g5(0.06, 74) ],
+[ 13.00, f5(0.25, 68) ],
+[ 13.50, g5(1.05, 89) ],
+[ 14.50, f5(0.47, 67) ],
+[ 15.00, e5(0.37, 75) ],
+[ 15.50, e5(0.19, 90) ]]);
 
+hihat.steps(2, [ , fs3, , fs3, , fs3, , fs3 ].repeat(3));   // 16 beats, hi-hat on the off-beats
+await kick.steps(1, [ c2, c2, c2, c2 ].repeat(3));         // 16 beats, kick on every beat (beat-keeper)
 
-// === 6 variation rounds (all with drums) ===
-// 1-2: warm pad + lead + intro D bass · 2 adds jumppad · 3-4: italo bass (chords) · 5-6: intro D bass, descending A# C G
-for (let round = 0; round < 6; round++) {
-    part(['finale', 'finale-stabs', 'finale-italo', 'finale-italo2', 'solo', 'ending'][round]);
-    if (round === 0) { setVisual('uItalo', 0); setVisual('uRunning', 1, 3.0); }   // finale opens four-on-the-floor; dancers turn sideways into the running man
-    if (round === 0) agentPrompt("turn them sideways - running man", "profile stance - stepping on the beat");   // running man move introduced
-    if (round === 2) { setVisual('uItalo', 1); setVisual('uRunning', 0, 2.0); }   // italo bass returns → double-time arms; running man ends, camera resumes its orbit
-    if (round === 4) setVisual('uItalo', 0);   // back to four-on-the-floor for the close
-    if (round < 5) finaleWarmpad();   // final round uses the recorded finaleStrings() on ch6 instead
-    if (round === 4) finaleSolo();   // recorded solo lead — spans the last two rounds (after the italo-disco)
-    finaleLead(round === 5);
-    if (round >= 1) finaleJump();
-    if (round <= 1) {
-        finaleHats();
-        if (round === 1) finaleBackbeatFill();   // jumppad in → backbeat + rolling fill into the italo section
-        finaleIntroBass();
-        if (round === 0) {
-            await kick.steps(4, [ c2, , , , ].repeat(27));   // 28 beats — to beat 288
-            agentPrompt("punch in the '84 brass stabs", "jump-pad brass - stacked on top");   // one bar before the brass enters
-            await kick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 292
-        } else {   // round 1
-            await kick.steps(4, [ c2, , , , ].repeat(15));   // 16 beats — to beat 308
-            agentPrompt("let the snare roll build it up", "16th-note roll - crescendo");   // ahead of the fill roll
-            await kick.steps(4, [ c2, , , , ].repeat(11));   // 12 beats — to beat 320
-            agentPrompt("flip the bass to italo-disco", "octave pump - four-on-the-floor");   // one bar before the italo section
-            await kick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 324
-        }
-    } else if (round <= 3) {
-        italoHats(32);
-        italoSnareFillA(32);   // both italo rounds get the simple fill (neither hands off to a new section)
-        finaleItaloBass();
-        if (round === 3) {
-            await kick.steps(4, [ c2, , , , ].repeat(27));   // 28 beats — to beat 384
-            agentPrompt("let me solo the last two rounds", "you're live - go");   // one bar before the solo round
-            await kick.steps(4, [ c2, , , , ].repeat(3));    // 4 beats — to beat 388
-        } else {
-            await finaleKick();
-        }
-    } else if (round === 4) {
-        finaleHats();
-        finaleBackbeat(32);    // snare backbeat returns after the italo section
-        finaleDescBass();
-        await kick.steps(4, [ c2, , , , ].repeat(31));   // 32 beats — to beat 420 (finale prompt moved down to just before the two final chords)
-    } else {
-        // final round: drop hats & snare for the last 4 beats — only the kick plays, on the jump-pad stabs
-        finaleStrings();       // recorded string/warm-pad take, featured in the final round
-        finaleHats(28);
-        finaleBackbeat(28);
-        finaleDescBassEnding();
-        finaleKickEnding();        // kick pattern (32 beats): every beat to 28, then only the two stabs (beats 28 & 29.5)
-        // snap the dancers to a pose on each of the two final chord stabs, then hold — no in-between dance.
-        // (waitDuration is the beat-keeper here so the kick pattern stays exactly as recorded.)
-        await waitDuration(24);    // to round-beat 24 (beat 444) — one bar before the two final chords
-        agentPrompt("land the last two chords - freeze the pose", "two stabs - dancers strike it and hold");   // moved here from beat 416; names the final pose
-        await waitDuration(4);     // to the first stab (round-beat 28, beat 448)
-        setVisual('uEndPose', 1);  // stab 1: freeze into pose A
-        await waitDuration(1.5);   // to the second stab (round-beat 29.5)
-        setVisual('uEndPose', 2);  // stab 2: snap to the mirrored pose B, then hold
-        await waitDuration(2.5);   // to the end of the round (round-beat 32)
-    }
-}
+// === PART "part2" (8 bars = 32 beats): F (2 bars) → G (2 bars) → Dm (4 bars), same bass riff + warm-pad voicings, transposed diatonically ===
+await waitForSignal('go', { loop: 'part', quantize: 'bar' });   // "start" loops until told to go on
+definePartStart('part2');
+createTrack(9).play([
+[ 0.00, f2(0.36, 72) ],
+[ 1.00, c3(0.36, 72) ],
+[ 1.41, e3(0.27, 75) ],
+[ 1.98, f3(0.57, 90) ],
+[ 4.00, f2(0.89, 79) ],
+[ 4.92, c3(0.34, 70) ],
+[ 5.38, e3(0.29, 72) ],
+[ 5.92, f3(1.11, 89) ],
+[ 8.00, g2(0.36, 72) ],
+[ 9.00, d3(0.36, 72) ],
+[ 9.41, f3(0.27, 75) ],
+[ 9.98, g3(0.57, 90) ],
+[ 12.00, g2(0.89, 79) ],
+[ 12.92, d3(0.34, 70) ],
+[ 13.38, f3(0.29, 72) ],
+[ 13.92, g3(1.11, 89) ],
+[ 16.00, d2(0.36, 72) ],
+[ 17.00, a2(0.36, 72) ],
+[ 17.41, c3(0.27, 75) ],
+[ 17.98, d3(0.57, 90) ],
+[ 20.00, d2(0.89, 79) ],
+[ 20.92, a2(0.34, 70) ],
+[ 21.38, c3(0.29, 72) ],
+[ 21.92, d3(1.11, 89) ],
+[ 24.00, d2(0.36, 72) ],
+[ 25.00, a2(0.36, 72) ],
+[ 25.41, c3(0.27, 75) ],
+[ 25.98, d3(0.57, 90) ],
+[ 28.00, d2(0.89, 79) ],
+[ 28.92, a2(0.34, 70) ],
+[ 29.38, c3(0.29, 72) ],
+[ 29.92, d3(1.11, 89) ]]);
 
-// let the final-pose caption breathe half a beat longer before the credits take over
-await waitDuration(0.5);
-// the very end, over the held final pose: the closing agent exchange is the credits —
-// the title as the green "command", the copyright as the blue "reply".
-showText(["> \"Prompted\"",
-          "  (c) 2026 Peter J. Salomonsen - petersalomonsen.com"],
-         { ...AGENT_OPTS, size: 24, fade: 3 });
-await waitDuration(7.5);   // hold the credit through the ring-out while everything decays
+createTrack(6).play([
+[ 0.00, c5(3.90, 88), a5(3.90, 70), f5(3.90, 94) ],
+[ 4.00, c5(3.90, 88), a5(3.90, 70), f5(3.90, 94) ],
+[ 8.00, g5(3.90, 79), b5(3.90, 77), d5(3.90, 60) ],
+[ 12.00, g5(3.90, 79), b5(3.90, 77), d5(3.90, 60) ],
+[ 16.00, d5(3.90, 65), f5(3.90, 87), a5(3.90, 55) ],
+[ 20.00, a5(3.90, 72), a4(3.90, 75), d5(3.90, 57), f5(3.90, 67), d6(3.90, 68) ],
+[ 24.00, d5(3.90, 65), f5(3.90, 87), a5(3.90, 55) ],
+[ 28.00, a5(3.90, 72), a4(3.90, 75), d5(3.90, 57), f5(3.90, 67), d6(3.90, 68) ]]);
+
+hihat.steps(2, [ , fs3, , fs3, , fs3, , fs3 ].repeat(7));   // 32 beats
+// snare: backbeat on 2 & 4 plus ghost notes (low velocity) in between — a 16th before each backbeat,
+// one after the first, and a pickup 16th before the next bar's kick
+snare.steps(4, [
+    , , , d3(0.1, 35),   d3, , d3(0.1, 35), ,
+    , , , d3(0.1, 35),   d3, , , d3(0.1, 38),
+].repeat(7));   // 32 beats
+await kick.steps(1, [ c2, c2, c2, c2 ].repeat(7));         // 32 beats (beat-keeper)
+await waitForSignal('go', { loop: 'part', quantize: 'bar' });   // "part2" loops until told to go on
+
+// === PART "part3" (4 bars = 16 beats): kick + bass guitar only, D on every beat ===
+definePartStart('part3');
+createTrack(4).play([
+[ 0.50, a6(0.41, 60) ],
+[ 1.00, f7(0.51, 89) ],
+[ 1.50, a6(0.36, 48) ],
+[ 2.00, e7(0.46, 82) ],
+[ 2.50, a6(0.50, 37) ],
+[ 3.00, c7(0.50, 93) ],
+[ 3.50, d7(0.42, 84) ],
+[ 4.50, a6(0.45, 78) ],
+[ 5.00, f7(0.54, 89) ],
+[ 5.50, a6(0.42, 38) ],
+[ 6.00, e7(0.51, 89) ],
+[ 6.50, a6(0.47, 53) ],
+[ 7.00, c7(0.42, 94) ],
+[ 7.50, d7(0.79, 94) ],
+[ 8.50, f6(0.35, 55) ],
+[ 9.00, f7(0.50, 93) ],
+[ 9.50, f6(0.40, 38) ],
+[ 10.00, e7(0.62, 89) ],
+[ 10.50, a6(0.18, 70) ],
+[ 11.00, c7(0.47, 100) ],
+[ 12.50, a6(0.39, 63) ],
+[ 13.00, f7(0.47, 97) ],
+[ 13.50, a6(0.11, 47) ],
+[ 14.00, e7(0.48, 88) ],
+[ 14.50, a6(0.58, 57) ],
+[ 15.00, c7(0.48, 102) ],
+[ 15.50, d7(0.54, 94) ]]);
+
+startRecording();   // live MIDI input is captured into the song over these 4 bars
+bassguitar.steps(1, [   // follows the left hand of the take: D (2 bars), A# (1 bar), C (1 bar)
+    d2(0.9), d2(0.9), d2(0.9), d2(0.9),   d2(0.9), d2(0.9), d2(0.9), d2(0.9),
+    as2(0.9), as2(0.9), as2(0.9), as2(0.9),   c3(0.9), c3(0.9), c3(0.9), c3(0.9),
+]);   // 16 beats
+await hihat.steps(2, [ , fs3, , fs3, , fs3, , fs3 ].repeat(3));           // 16 beats, hi-hat on the off-beats (beat-keeper, no kick here)
+stopRecording();
+await waitForSignal('go', { loop: 'part', quantize: 'bar' });   // "part3" loops until told to go on
+
+// === PART "part4" (4 bars = 16 beats): part3 + warm pad chords Dm (2 bars) → A# (1 bar) → C (1 bar) ===
+definePartStart('part4');
+warmpad.steps(1, [
+    [d5(3.9, 65), f5(3.9, 87), a5(3.9, 55)], , , ,     // Dm  (voicing from the "start" take)
+    [d5(3.9, 65), f5(3.9, 87), a5(3.9, 55)], , , ,     // Dm
+    [as4(3.9, 65), d5(3.9, 87), f5(3.9, 55)], , , ,    // A#
+    [c5(3.9, 60), e5(3.9, 53), g5(3.9, 58)], , , null, // C
+]);
+createTrack(4).play([
+[ 0.50, a6(0.41, 60) ],
+[ 1.00, f7(0.51, 89) ],
+[ 1.50, a6(0.36, 48) ],
+[ 2.00, e7(0.46, 82) ],
+[ 2.50, a6(0.50, 37) ],
+[ 3.00, c7(0.50, 93) ],
+[ 3.50, d7(0.42, 84) ],
+[ 4.50, a6(0.45, 78) ],
+[ 5.00, f7(0.54, 89) ],
+[ 5.50, a6(0.42, 38) ],
+[ 6.00, e7(0.51, 89) ],
+[ 6.50, a6(0.47, 53) ],
+[ 7.00, c7(0.42, 94) ],
+[ 7.50, d7(0.79, 94) ],
+[ 8.50, f6(0.35, 55) ],
+[ 9.00, f7(0.50, 93) ],
+[ 9.50, f6(0.40, 38) ],
+[ 10.00, e7(0.62, 89) ],
+[ 10.50, a6(0.18, 70) ],
+[ 11.00, c7(0.47, 100) ],
+[ 12.50, a6(0.39, 63) ],
+[ 13.00, f7(0.47, 97) ],
+[ 13.50, a6(0.11, 47) ],
+[ 14.00, e7(0.48, 88) ],
+[ 14.50, a6(0.58, 57) ],
+[ 15.00, c7(0.48, 102) ],
+[ 15.50, d7(0.54, 94) ]]);
+bassguitar.steps(1, [   // D (2 bars), A# (1 bar), C (1 bar)
+    d2(0.9), d2(0.9), d2(0.9), d2(0.9),   d2(0.9), d2(0.9), d2(0.9), d2(0.9),
+    as2(0.9), as2(0.9), as2(0.9), as2(0.9),   c3(0.9), c3(0.9), c3(0.9), c3(0.9),
+]);   // 16 beats
+await hihat.steps(2, [ , fs3, , fs3, , fs3, , fs3 ].repeat(3));           // 16 beats, hi-hat on the off-beats (beat-keeper)
+await waitForSignal('go', { loop: 'part', quantize: 'bar' });   // "part4" loops until told to go on
 
 loopHere();

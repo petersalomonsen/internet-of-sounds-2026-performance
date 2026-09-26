@@ -1,0 +1,35 @@
+{
+ "sessionId": "7df07113-38a5-4acf-bd26-55b43d200f7d",
+ "summary": null,
+ "conversation": [
+  {
+   "role": "user",
+   "text": "go to the finale",
+   "stage": true
+  },
+  {
+   "role": "agent",
+   "text": "I couldn't jump playback to the finale from here: this session has no tool for sending a performance signal, and I made no edits.\n\n`finale` does exist as a part in the song (it is round 0 of the six-round finale block). The jump it needs is `sendSignal('go', 'finale')`.\n\nTwo ways to get there yourself:\n- **Performance mode on** (the checkbox next to play): type just `finale` in this panel and it is dispatched directly without going through me. Or run `sendSignal('go', 'finale')` in the browser console. It jumps on the next bar line.\n- **Performance mode off:** the waits are inert and the song simply plays through to the finale. To audition from there, put your own `playFromHere()` just above the `for (let round = 0; ...` loop (around line 868). I won't add that marker for you, since it is your audition marker.\n\nIf you meant something else, such as working on the finale section, tell me what to change."
+  },
+  {
+   "role": "user",
+   "text": "go to the break",
+   "stage": true
+  },
+  {
+   "role": "agent",
+   "text": "I still can't send the jump from this session, because it has no tool for performance signals. I made no edits. `break` does exist as a part, at line 290, between `chorus3` and `drop`.\n\n- **Performance mode on:** type just `break` in this panel and it is dispatched directly without me. Or run `sendSignal('go', 'break')` in the browser console. It jumps on the next bar line.\n- **Performance mode off:** put your own `playFromHere()` just above `part('break');` to audition from there.\n\nThe part names you can jump to are `before`, `intro`, `verse`, `chorus`, `chorus2`, `chorus3`, `break`, `drop`, `breakdown`, `finale`, `finale-stabs`, `finale-italo`, `finale-italo2`, `solo` and `ending`."
+  },
+  {
+   "role": "user",
+   "text": "verse",
+   "stage": true
+  },
+  {
+   "role": "agent",
+   "text": "`verse` reached me instead of being dispatched as a jump. Going by the docs, that suggests performance mode is off, though I can't check the checkbox from here. With it on, a bare part name typed in this panel is dispatched directly and never reaches the model. I still can't send the signal myself, and I made no edits.\n\n- Tick the **performance mode** checkbox next to the play control, start playback, then type `verse` here again. Running `sendSignal('go', 'verse')` in the browser console does the same. It jumps on the next bar line.\n- With performance mode off, the waits are inert and the song plays straight through. To hear it from the verse, put your own `playFromHere()` just above the `for` loop containing `part(['verse', 'chorus', ...][rep])` (around line 185).\n\nIf performance mode is already on and `verse` still came through to me, the direct dispatch isn't firing. That would be a bug in the app, not something in the song."
+  }
+ ],
+ "label": "performance",
+ "started": "2026-09-17T15:18:28.937Z"
+}

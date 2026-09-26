@@ -95,12 +95,12 @@ export class BassDsp {
     fConst3: f32;
     fConst4: f32;
     fConst5: f32;
-    fRec449: StaticArray<f32> = new StaticArray<f32>(2);
-    fRec449_1: StaticArray<f32> = new StaticArray<f32>(2);
-    fRec465: StaticArray<f32> = new StaticArray<f32>(2);
-    fRec465_1: StaticArray<f32> = new StaticArray<f32>(2);
-    fRec473: f32;
-    iRec483: i32;
+    fRec0: StaticArray<f32> = new StaticArray<f32>(2);
+    fRec0_1: StaticArray<f32> = new StaticArray<f32>(2);
+    fRec1: StaticArray<f32> = new StaticArray<f32>(2);
+    fRec1_1: StaticArray<f32> = new StaticArray<f32>(2);
+    fRec2: f32;
+    iRec3: i32;
 
     getSampleRate(): i32 {
         return this.fSampleRate;
@@ -116,8 +116,8 @@ export class BassDsp {
     buildUserInterface(ui_interface: usize): void {
         // ui openbox bass
         // ui slider freq
-        // ui button gate
         // ui slider gain
+        // ui button gate
         // ui closebox
     }
     static classInit(sample_rate: i32): void {
@@ -132,19 +132,19 @@ export class BassDsp {
             this.fVec67[lDelay0] = 0.0;
         }
         for (let lRec1: i32 = 0; lRec1 < <i32>(2); lRec1 = lRec1 + 1) {
-            this.fRec449[lRec1] = 0.0;
+            this.fRec0[lRec1] = 0.0;
         }
         for (let lRec2: i32 = 0; lRec2 < <i32>(2); lRec2 = lRec2 + 1) {
-            this.fRec449_1[lRec2] = 0.0;
+            this.fRec0_1[lRec2] = 0.0;
         }
         for (let lRec3: i32 = 0; lRec3 < <i32>(2); lRec3 = lRec3 + 1) {
-            this.fRec465[lRec3] = 0.0;
+            this.fRec1[lRec3] = 0.0;
         }
         for (let lRec4: i32 = 0; lRec4 < <i32>(2); lRec4 = lRec4 + 1) {
-            this.fRec465_1[lRec4] = 0.0;
+            this.fRec1_1[lRec4] = 0.0;
         }
-        this.fRec473 = 0.0;
-        this.iRec483 = <i32>(0);
+        this.fRec2 = 0.0;
+        this.iRec3 = <i32>(0);
     }
     instanceConstants(sample_rate: i32): void {
         this.fSampleRate = sample_rate;
@@ -177,33 +177,33 @@ export class BassDsp {
         this.fSlow8 = (1.0 - (this.fConst0 / this.fSlow6));
     }
     frame(inputs: StaticArray<f32>, outputs: StaticArray<f32>): void {
-        let fTemp0: f32 = this.fRec449[<i32>(1)];
-        let fTemp1: f32 = (this.fSlow5 + (fTemp0 - 1.0));
+        let fTemp0: f32 = this.fRec0[<i32>(1)];
+        let fTemp1: f32 = (this.fSlow5 + (fTemp0 + -1.0));
         let iTemp0: i32 = (fTemp1 < 0.0);
         let fTemp2: f32 = (this.fSlow5 + fTemp0);
-        let fTemp3: f32 = this.fRec465[<i32>(1)];
-        let fTemp4: f32 = (this.fSlow7 + (fTemp3 - 1.0));
+        let fTemp3: f32 = this.fRec1[<i32>(1)];
+        let fTemp4: f32 = (this.fSlow7 + (fTemp3 + -1.0));
         let iTemp1: i32 = (fTemp4 < 0.0);
         let fTemp5: f32 = (this.fSlow7 + fTemp3);
         let fRecBody5: f32 = (iTemp0 ? fTemp2 : fTemp1);
         let fRecBody6: f32 = (iTemp0 ? fTemp2 : (this.fSlow5 + (fTemp0 + (this.fSlow3 * fTemp1))));
-        this.fRec449[<i32>(0)] = fRecBody5;
-        this.fRec449_1[<i32>(0)] = fRecBody6;
+        this.fRec0[<i32>(0)] = fRecBody5;
+        this.fRec0_1[<i32>(0)] = fRecBody6;
         let fRecBody7: f32 = (iTemp1 ? fTemp5 : fTemp4);
         let fRecBody8: f32 = (iTemp1 ? fTemp5 : (this.fSlow7 + (fTemp3 + (this.fSlow8 * fTemp4))));
-        this.fRec465[<i32>(0)] = fRecBody7;
-        this.fRec465_1[<i32>(0)] = fRecBody8;
+        this.fRec1[<i32>(0)] = fRecBody7;
+        this.fRec1_1[<i32>(0)] = fRecBody8;
         this.fVec67[<i32>(0)] = this.fSlow4;
-        let fRecCur473: f32 = (this.fSlow4 + (this.fRec473 * <f32>((this.fVec67[<i32>(1)] >= this.fSlow4))));
-        let iRecCur483: i32 = (this.iSlow0 * (this.iRec483 + <i32>(1)));
-        outputs[<i32>(0)] = <f32>((this.fSlow0 * (((0.6000000238418579 * ((2.0 * this.fRec449_1[<i32>(0)]) - 1.0)) + (0.4000000059604645 * ((2.0 * this.fRec465_1[<i32>(0)]) - 1.0))) * max<f32>((min<f32>((this.fConst3 * fRecCur473), max<f32>(((this.fConst4 * (this.fConst2 - fRecCur473)) + 1.0), 0.6000000238418579)) * (1.0 - (this.fConst5 * <f32>(iRecCur483)))), 0.0))));
-        this.fRec449[<i32>(1)] = this.fRec449[<i32>(0)];
-        this.fRec449_1[<i32>(1)] = this.fRec449_1[<i32>(0)];
-        this.fRec465[<i32>(1)] = this.fRec465[<i32>(0)];
-        this.fRec465_1[<i32>(1)] = this.fRec465_1[<i32>(0)];
+        let fRecCur2: f32 = (this.fSlow4 + (this.fRec2 * <f32>((this.fVec67[<i32>(1)] >= this.fSlow4))));
+        let iRecCur3: i32 = (this.iSlow0 * (this.iRec3 + <i32>(1)));
+        outputs[<i32>(0)] = <f32>((this.fSlow0 * (((0.6000000238418579 * ((2.0 * this.fRec0_1[<i32>(0)]) + -1.0)) + (0.4000000059604645 * ((2.0 * this.fRec1_1[<i32>(0)]) + -1.0))) * max<f32>((min<f32>((this.fConst3 * fRecCur2), max<f32>(((this.fConst4 * (this.fConst2 - fRecCur2)) + 1.0), 0.6000000238418579)) * (1.0 - (this.fConst5 * <f32>(iRecCur3)))), 0.0))));
+        this.fRec0[<i32>(1)] = this.fRec0[<i32>(0)];
+        this.fRec0_1[<i32>(1)] = this.fRec0_1[<i32>(0)];
+        this.fRec1[<i32>(1)] = this.fRec1[<i32>(0)];
+        this.fRec1_1[<i32>(1)] = this.fRec1_1[<i32>(0)];
         this.fVec67[<i32>(1)] = this.fVec67[<i32>(0)];
-        this.fRec473 = fRecCur473;
-        this.iRec483 = iRecCur483;
+        this.fRec2 = fRecCur2;
+        this.iRec3 = iRecCur3;
     }
     compute(count: i32, inputs: Array<StaticArray<f32>>, outputs: Array<StaticArray<f32>>): void {
     }

@@ -11,6 +11,7 @@ import { Warmpad } from '../faust/warmpad';
 import { Snare } from '../faust/snare';
 import { Sololead, SololeadChannel } from '../faust/sololead';
 import { Masterverb, MasterverbChannel } from '../faust/masterverb';
+import { Bassguitar } from '../faust/bassguitar';
 
 // Global master reverb: one Zita-rev1 instance (MasterverbChannel) driven over the full mix in postprocess().
 const masterReverbWet: f32 = 0.30;
@@ -55,6 +56,7 @@ export function initializeMidiSynth(): void {
     midichannels[6] = new MidiChannel(8, (channel: MidiChannel) => new Warmpad(channel));
     midichannels[7] = new MidiChannel(2, (channel: MidiChannel) => new Snare(channel));
     midichannels[8] = new SololeadChannel(8, (channel: MidiChannel) => new Sololead(channel));
+    midichannels[9] = new MidiChannel(4, (channel: MidiChannel) => new Bassguitar(channel));
 
     // Global reverb is now the Zita-rev1 MASTER effect (one MasterverbChannel), driven over the
     // full mix in postprocess(). Disable the built-in Freeverb bus so the two don't stack:

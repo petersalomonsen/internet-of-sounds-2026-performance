@@ -29,6 +29,7 @@ uniform float uLights;    // 0 = dark stage (white hero spot) .. 1 = disco rig u
 uniform float uFloor;     // 0 = void .. 1 = tiled dancefloor
 uniform float uHero;      // 0 = empty spotlit stage .. 1 = lone hero has stepped in
 uniform float uItalo;     // 0 = one arm-move per beat .. 1 = italo 8th-note moves, mirroring every 2 beats
+uniform float uOffKick;   // 0 = off .. 1 = extra arm move on the off-beat of every 4th beat (with the intro's extra kick)
 uniform float uRunning;   // 0 = front-facing dance .. 1 = turned sideways doing the running man (finale)
 uniform float uEndPose;   // 0 = dancing .. 1 = frozen pose A .. 2 = frozen mirrored pose B (last two chords)
 
@@ -243,6 +244,12 @@ void main() {
           float crouch = exp(-3.0 * ph);
           // arms — normal: one snap per beat, 4-beat zigzag cycle (0,1,0,-1)
           float wvNormal = mix(sin(HALFPI * (bi - 1.0)), sin(HALFPI * bi), smoothstep(0.85, 1.0, ph));
+          // arms — offbeat double (uOffKick): on every 4th beat an EXTRA move lands on the off-beat
+          // (with the extra kick): swing to the opposite pose by ph 0.5, then on to the downbeat pose.
+          float wvPrev = sin(HALFPI * (bi - 1.0)), wvCur = sin(HALFPI * bi);
+          float wvOff = mix(mix(wvPrev, -wvCur, smoothstep(0.35, 0.5, ph)), wvCur, smoothstep(0.85, 1.0, ph));
+          float isFourth = (mod(bi, 4.0) > 2.5) ? 1.0 : 0.0;
+          wvNormal = mix(wvNormal, wvOff, isFourth * clamp(uOffKick, 0.0, 1.0));
           // arms — italo: 8th-note moves over a 2-BEAT cycle, arriving ON the beat.
           // Moves land on the kick (beat 1), the first off-beat hat, and the snare (beat 2);
           // the last off-beat hat is HELD. 3 moves per 2 beats is odd, so the next two beats
