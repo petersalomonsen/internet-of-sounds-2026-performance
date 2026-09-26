@@ -80,8 +80,10 @@ layered *before* it, un-awaited. Keep that shape.
 | 14 | `createTrack(14)` | `Pmstrings` | bowed waveguide string, slow swell | CC 0 bow tone, 1 bright, 2 damping |
 | 15 | `createTrack(15)` | `Pmbrass` | two bright waveguides, breathy attack | CC 0 breath tone, 1 bright, 2 damping |
 
-Channels 10–15 (the `Pm…` physical-modeling instruments, `faust/physmod.lib`) are not
-in the song yet — they are there to bring in, and to reshape live with their CCs. The
+Channels 10–15 (the `Pm…` physical-modeling instruments, `faust/physmod.lib`; track
+variables `pmdrums` … `pmbrass`) play in the current song: piano arpeggio and strings in
+`part2`, strings and guitar chops in `part4`, all six in `part5`. Reshape them live with
+their CCs. The
 CCs all work the same way: **CC 49 = the original sound**, CC 98 ≈ ×2, CC 25 ≈ ×½ of that
 quantity (`damping` is exponential: lower rings longer).
 

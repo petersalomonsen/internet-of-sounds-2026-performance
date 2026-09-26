@@ -12,6 +12,13 @@ addInstrument('warmpad');// 6
 addInstrument('snare');  // 7
 addInstrument('sololead');// 8
 addInstrument('bassguitar');// 9 — Karplus-Strong bass guitar (ported from Beach Drive)
+// 10-15: physical-modeling instruments (faust/pm*.dsp, ported from the 2020 AssemblyScript song)
+addInstrument('pmdrums');  // 10 — c5 kick, d5 snare, fs5 hat
+addInstrument('pmbass');   // 11
+addInstrument('pmguitar'); // 12
+addInstrument('pmpiano');  // 13
+addInstrument('pmstrings');// 14
+addInstrument('pmbrass');  // 15
 
 const kick    = createTrack(0, 4);
 const hihat   = createTrack(1, 4);
@@ -23,6 +30,12 @@ const warmpad = createTrack(6);
 const snare   = createTrack(7, 1);
 const sololead = createTrack(8);
 const bassguitar = createTrack(9);
+const pmdrums   = createTrack(10);
+const pmbass    = createTrack(11);
+const pmguitar  = createTrack(12);
+const pmpiano   = createTrack(13);
+const pmstrings = createTrack(14);
+const pmbrass   = createTrack(15);
 
 // === PART "start" (4 bars = 16 beats): silence ===
 definePartStart('start');
@@ -143,6 +156,20 @@ createTrack(6).play([
 [ 24.00, d5(3.90, 65), f5(3.90, 87), a5(3.90, 55) ],
 [ 28.00, a5(3.90, 72), a4(3.90, 75), d5(3.90, 57), f5(3.90, 67), d6(3.90, 68) ]]);
 
+// physical-modeling piano: broken chords in 8ths, F (2 bars) → G (2 bars) → Dm (4 bars)
+pmpiano.steps(2, [
+    f4(0.45, 62), c5(0.45, 58), f5(0.45, 66), a5(0.45, 60), c6(0.45, 70), a5(0.45, 58), f5(0.45, 62), c5(0.45, 56),
+    f4(0.45, 62), c5(0.45, 58), f5(0.45, 66), a5(0.45, 60), c6(0.45, 70), a5(0.45, 58), f5(0.45, 62), c5(0.45, 56),
+    g4(0.45, 62), d5(0.45, 58), g5(0.45, 66), b5(0.45, 60), d6(0.45, 70), b5(0.45, 58), g5(0.45, 62), d5(0.45, 56),
+    g4(0.45, 62), d5(0.45, 58), g5(0.45, 66), b5(0.45, 60), d6(0.45, 70), b5(0.45, 58), g5(0.45, 62), d5(0.45, 56),
+    ...[d4(0.45, 62), a4(0.45, 58), d5(0.45, 66), f5(0.45, 60), a5(0.45, 70), f5(0.45, 58), d5(0.45, 62), a4(0.45, 56)].repeat(3),
+]);   // 32 beats
+// physical-modeling strings: low fifths under the pad, one bowed swell per chord
+pmstrings.steps(1, [
+    [c4(7.8, 70), f4(7.8, 66)], , , , , , , ,
+    [d4(7.8, 70), g4(7.8, 66)], , , , , , , ,
+    [d4(15.8, 72), a4(15.8, 66)], , , , , , , , , , , , , , , ,
+]);   // 32 beats
 hihat.steps(2, [ , fs3, , fs3, , fs3, , fs3 ].repeat(7));   // 32 beats
 // snare: backbeat on 2 & 4 plus ghost notes (low velocity) in between — a 16th before each backbeat,
 // one after the first, and a pickup 16th before the next bar's kick
@@ -229,11 +256,89 @@ createTrack(4).play([
 [ 14.50, a6(0.58, 57) ],
 [ 15.00, c7(0.48, 102) ],
 [ 15.50, d7(0.54, 94) ]]);
+// physical-modeling strings on the chords, and the guitar chopping the off-beats
+pmstrings.steps(1, [
+    [d4(7.8, 70), a4(7.8, 66)], , , , , , , ,
+    [as3(3.8, 70), f4(3.8, 66)], , , ,
+    [c4(3.8, 70), g4(3.8, 66)], , , ,
+]);   // 16 beats
+pmguitar.steps(2, [
+    ...[ , [d5(0.2, 70), f5(0.2, 64), a5(0.2, 60)] ].repeat(7),
+    ...[ , [d5(0.2, 70), f5(0.2, 64), as5(0.2, 60)] ].repeat(3),
+    ...[ , [e5(0.2, 70), g5(0.2, 64), c6(0.2, 60)] ].repeat(3),
+]);   // 16 beats
 bassguitar.steps(1, [   // D (2 bars), A# (1 bar), C (1 bar)
     d2(0.9), d2(0.9), d2(0.9), d2(0.9),   d2(0.9), d2(0.9), d2(0.9), d2(0.9),
     as2(0.9), as2(0.9), as2(0.9), as2(0.9),   c3(0.9), c3(0.9), c3(0.9), c3(0.9),
 ]);   // 16 beats
 await hihat.steps(2, [ , fs3, , fs3, , fs3, , fs3 ].repeat(3));           // 16 beats, hi-hat on the off-beats (beat-keeper)
 await waitForSignal('go', { loop: 'part', quantize: 'bar' });   // "part4" loops until told to go on
+
+// === PART "part5" (8 bars = 32 beats): the physical-modeling band — Dm (2 bars) → A# (1) → C (1), twice ===
+definePartStart('part5');
+// drums: pm snare on 2 & 4, pm hats on the off-beat 8ths with a soft 16th after
+pmdrums.steps(4, [
+    , , fs5(0.1, 80), fs5(0.1, 40),   d5(0.2, 100), , fs5(0.1, 80), fs5(0.1, 40),
+    , , fs5(0.1, 80), fs5(0.1, 40),   d5(0.2, 100), , fs5(0.1, 80), fs5(0.1, 40),
+].repeat(7));   // 32 beats
+// bass: octave pump in 8ths
+pmbass.steps(2, [
+    ...[d2(0.45, 100), d3(0.45, 80)].repeat(7),
+    ...[as2(0.45, 100), as3(0.45, 80)].repeat(3),
+    ...[c3(0.45, 100), c4(0.45, 80)].repeat(3),
+].repeat(1));   // 32 beats
+// guitar: off-beat chops
+pmguitar.steps(2, [
+    ...[ , [d5(0.2, 70), f5(0.2, 64), a5(0.2, 60)] ].repeat(7),
+    ...[ , [d5(0.2, 70), f5(0.2, 64), as5(0.2, 60)] ].repeat(3),
+    ...[ , [e5(0.2, 70), g5(0.2, 64), c6(0.2, 60)] ].repeat(3),
+].repeat(1));   // 32 beats
+// strings: the chords, bowed
+pmstrings.steps(1, [
+    [d4(7.8, 70), a4(7.8, 66)], , , , , , , ,
+    [as3(3.8, 70), f4(3.8, 66)], , , ,
+    [c4(3.8, 70), g4(3.8, 66)], , , ,
+].repeat(1));   // 32 beats
+// brass: stabs pushing into each chord change (an 8th early)
+pmbrass.play([
+    [ 7.5, as4(0.4, 90), d5(0.4, 84), f5(0.4, 80) ],
+    [ 11.5, c5(0.4, 90), e5(0.4, 84), g5(0.4, 80) ],
+    [ 15.5, d5(0.4, 90), f5(0.4, 84), a5(0.4, 80) ],
+    [ 23.5, as4(0.4, 90), d5(0.4, 84), f5(0.4, 80) ],
+    [ 27.5, c5(0.4, 90), e5(0.4, 84), g5(0.4, 80) ],
+    [ 30.0, c5(0.3, 80), e5(0.3, 76), g5(0.3, 72) ],
+    [ 31.5, d5(0.4, 95), f5(0.4, 88), a5(0.4, 84) ],
+]);
+// piano: part3's lead motif, two octaves down, in the second half
+pmpiano.play([
+[ 16.50, a4(0.41, 60) ],
+[ 17.00, f5(0.51, 89) ],
+[ 17.50, a4(0.36, 48) ],
+[ 18.00, e5(0.46, 82) ],
+[ 18.50, a4(0.50, 37) ],
+[ 19.00, c5(0.50, 93) ],
+[ 19.50, d5(0.42, 84) ],
+[ 20.50, a4(0.45, 78) ],
+[ 21.00, f5(0.54, 89) ],
+[ 21.50, a4(0.42, 38) ],
+[ 22.00, e5(0.51, 89) ],
+[ 22.50, a4(0.47, 53) ],
+[ 23.00, c5(0.42, 94) ],
+[ 23.50, d5(0.79, 94) ],
+[ 24.50, f4(0.35, 55) ],
+[ 25.00, f5(0.50, 93) ],
+[ 25.50, f4(0.40, 38) ],
+[ 26.00, e5(0.62, 89) ],
+[ 26.50, a4(0.18, 70) ],
+[ 27.00, c5(0.47, 100) ],
+[ 28.50, a4(0.39, 63) ],
+[ 29.00, f5(0.47, 97) ],
+[ 29.50, a4(0.11, 47) ],
+[ 30.00, e5(0.48, 88) ],
+[ 30.50, a4(0.58, 57) ],
+[ 31.00, c5(0.48, 102) ],
+[ 31.50, d5(0.54, 94) ]]);
+await kick.steps(1, [ c2, c2, c2, c2 ].repeat(7));         // 32 beats (beat-keeper)
+await waitForSignal('go', { loop: 'part', quantize: 'bar' });   // "part5" loops until told to go on
 
 loopHere();
