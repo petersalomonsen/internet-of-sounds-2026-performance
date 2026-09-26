@@ -17,8 +17,8 @@ audience hears every change on its next pass. Aim for **a few seconds per reques
   voices below are the palette; reshape them with their CCs.
 - **Moving between parts is not an edit.** A part name or "next" typed in the panel jumps by
   itself; `go_to_part` / `send_signal` do the same from your tools.
-- **Do not touch** `synth.ts`, `faust/`, `shader.glsl`, the `addInstrument` lines and the track
-  declarations at the top of `song.js`.
+- **Do not touch** `faust/`, `shader.glsl`, the `addInstrument` lines and the track declarations
+  at the top of `song.js`. In `synth.ts` only the channel volumes (`controlchange(7, …)`) change.
 
 ## The song's shape — keep it exactly like this
 
@@ -82,11 +82,28 @@ and loop tweaks apply from the next *new* note.
   other `startRecording()`/`stopRecording()` pair first (one armed part at a time). Compile,
   answer "armed — play when it comes round". The performer selects the instrument in the app;
   the take is recorded on that channel.
-- **After the take** the performer presses *insert recording* (or asks you): the notes land as
-  `createTrack(N).play([[beat, note(dur, vel)], …])` at the editor cursor. With `run_script`
-  (`findPlayBlocks(song)`) move that block into its part, rename `createTrack(N)` to the track
-  variable, remove the record markers, compile. **"Fix the timing"** → `.quantize(4)` on the
-  block (16ths), `.quantize(2)` for 8ths.
+- **After the take** ("recorded", "fix the timing") the inserted notes are a
+  `createTrack(N).play([...])` block. Place it with **one** `run_script`, this code with the three
+  constants filled in, then compile — no exploring first:
+
+  ```javascript
+  const PART = 'start', TRACK = 'strings', LEN = 16;   // part name, track variable, part length in beats
+  const Q = 2;                                         // snap to 8ths (4 = 16ths); "keep the feel" → skip snapping
+  const b = findPlayBlocks(song).find((x) => /^createTrack\(\d+\)$/.test(x.track));
+  const rows = b.notes.filter((n) => n.cc === undefined).map((n) => {
+    const s = quantizeBeat(n.beat, Q), e = Math.max(quantizeBeat(n.beat + n.duration, Q), s + 1 / Q);
+    return { ...n, beat: s, duration: +(Math.min(e, LEN) - s - 0.05).toFixed(2) };
+  }).filter((n) => n.beat < LEN);                     // a note snapped onto the loop point is dropped
+  let out = song.slice(0, b.start) + song.slice(b.end).replace(/^\s*;/, '');
+  out = out.replace(/^[ \t]*(startRecording|stopRecording)\(\);[^\n]*\n/gm, '');
+  const mark = `definePartStart('${PART}');`;
+  out = out.replace(mark, `${mark}\n${TRACK}.play([\n${formatNotes(rows, { chords: true })}\n]);`);
+  await setSong(out);
+  print(`${rows.length} notes on ${TRACK} in ${PART}`);
+  ```
+  Short ornaments (grace notes, trills — notes under ~0.15 beat just before another) keep their
+  own timing: snap only the note they lead into. "Remove the notes that don't fit" → also drop
+  notes outside the part's key and blips under 0.06 beat, and print what was dropped.
 - **"Add a bass under the strings (with the chord notes)"**: `run_script` — find the chord take
   in that part, `groupByBeat(notes, 0.25)`; for each chord take its lowest note, drop it into the
   bass range (MIDI 26–40) by octaves, and hold it until the next chord (or the part's end); splice
@@ -100,6 +117,10 @@ and loop tweaks apply from the next *new* note.
   "Without the piano" → leave that layer out of the copy.
 - **"Double it / an octave up / on the pad too"**: `run_script` — copy the take's rows to the
   other track, shifted by 12.
+- **"<instrument> louder / quieter"** — always the channel volume in `synth.ts`
+  (`midichannels[N].controlchange(7, v);`, one `edit_synth`), never velocities or a CC in the song.
+  Gain is (v/127)², so move in audible steps: **a bit = v × 1.19 (±3 dB), clearly = v × 1.41
+  (±6 dB)**, "much" = two of those; round, keep it ≤ 127. Say the new value and the dB change.
 - **"Brighter", "more echo", "longer ring"** on an instrument: at the start of the part
   `guitar.steps(1, [ controlchange(3, 98) ]);` (channel's CC from the table; 49 is the original).
   For the whole piece, put it in the first part.

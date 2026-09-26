@@ -36,7 +36,7 @@ export function initializeMidiSynth(): void {
     midichannels[1] = new MbassChannel(2, (channel: MidiChannel) => new Mbass(channel));
     midichannels[1].controlchange(7, 49);
     midichannels[2] = new MguitarChannel(6, (channel: MidiChannel) => new Mguitar(channel));      // amp + echo as channel effect
-    midichannels[2].controlchange(7, 13);
+    midichannels[2].controlchange(7, 40);
     midichannels[3] = new MpianoChannel(10, (channel: MidiChannel) => new Mpiano(channel));       // comb network as channel effect
     midichannels[3].controlchange(7, 88);
     midichannels[4] = new MfluteChannel(4, (channel: MidiChannel) => new Mflute(channel));        // echo as channel effect
