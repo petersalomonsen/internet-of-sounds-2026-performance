@@ -72,6 +72,18 @@ layered *before* it, un-awaited. Keep that shape.
 | 6 | `warmpad` | `Warmpad` | low-passed warm pad, breakdown/finale chords | |
 | 7 | `snare` | `Snare` | backbeat and fills (`d3`) | `createTrack(7, 1)`: one step per beat |
 | 8 | `createTrack(8)` | `Sololead` + channel | the live solo lead; **the keyboard channel on stage** | CC 0 vibrato depth, 1 vibrato rate, 2 cutoff, 3 resonance, 4 drive |
+| 9 | `bassguitar` | `Bassguitar` | Karplus-Strong bass guitar (from Beach Drive) | |
+| 10 | `createTrack(10)` | `Pmdrums` | physical-modeling kit (noise drums): **c5 kick, d5 snare, fs5 hat**, other notes silent | CC 0 hat cutoff, 1 hat decay, 2 hat level, 3 kick click, 4 kick decay, 5 kick level, 6 kick sweep, 8 snare decay, 9 snare level, 11 snare snap |
+| 11 | `createTrack(11)` | `Pmbass` | waveguide bass, long bright ring | CC 0 bright, 1 damping, 2 exciter tone, 3 pluck |
+| 12 | `createTrack(12)` | `Pmguitar` + amp | plucked waveguide guitar through a soft-clip amp | CC 0 bright, 1 damping, 2 exciter tone, 3 drive, 4 amp feedback |
+| 13 | `createTrack(13)` | `Pmpiano` | three-string waveguide piano | CC 0 bright, 1 damping, 2 hammer tone |
+| 14 | `createTrack(14)` | `Pmstrings` | bowed waveguide string, slow swell | CC 0 bow tone, 1 bright, 2 damping |
+| 15 | `createTrack(15)` | `Pmbrass` | two bright waveguides, breathy attack | CC 0 breath tone, 1 bright, 2 damping |
+
+Channels 10–15 (the `Pm…` physical-modeling instruments, `faust/physmod.lib`) are not
+in the song yet — they are there to bring in, and to reshape live with their CCs. The
+CCs all work the same way: **CC 49 = the original sound**, CC 98 ≈ ×2, CC 25 ≈ ×½ of that
+quantity (`damping` is exponential: lower rings longer).
 
 `synth.ts` also runs a Zita-rev1 master reverb over the whole mix (`masterReverbWet = 0.30`)
 and the mastering chain (`gainDb 13`, ceiling −1.5 dBTP, high-pass 35 Hz). Leave both alone
@@ -136,6 +148,11 @@ steps in), `uCrowd` (crowd revealed), `uZoom` (pull back), `uCamMove` (orbit), `
   `finaleBackbeatFill()` in a finale part).
 - **"More echo on the solo"** while playing: the solo channel's echo is a channel field,
   not a CC; leave it. Vibrato/cutoff/resonance/drive on ch 8 are CC 0–4 (`controlchange`).
+- **"Play it on the piano / guitar / strings" (physical modeling)**: change that block's
+  `createTrack(N)` to 13 / 12 / 14 (brass 15, bass 11). Compile. **"Brighter" / "longer
+  ring" / "more drive"** on one of them: `createTrack(13).steps(1, [ controlchange(0, 98) ]);`
+  at the part start (channel 13, CC 0 bright, ×2; CC 49 is the original — see the channel
+  table). Compile.
 - **Lights / crowd / camera**: `setVisual('uLights', 1, 3.0)` etc. at the start of the
   part (guarded in a loop part). "Dark" is the same name to `0`.
 

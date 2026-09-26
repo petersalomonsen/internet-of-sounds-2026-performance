@@ -12,6 +12,14 @@ import { Snare } from '../faust/snare';
 import { Sololead, SololeadChannel } from '../faust/sololead';
 import { Masterverb, MasterverbChannel } from '../faust/masterverb';
 import { Bassguitar } from '../faust/bassguitar';
+// Physical-modeling instruments ported from the 2020 AssemblyScript song
+// (reference/physicalmodeling/; shared model in faust/physmod.lib).
+import { Pmdrums, PmdrumsChannel } from '../faust/pmdrums';
+import { Pmbass, PmbassChannel } from '../faust/pmbass';
+import { Pmguitar, PmguitarChannel } from '../faust/pmguitar';
+import { Pmpiano, PmpianoChannel } from '../faust/pmpiano';
+import { Pmstrings, PmstringsChannel } from '../faust/pmstrings';
+import { Pmbrass, PmbrassChannel } from '../faust/pmbrass';
 
 // Global master reverb: one Zita-rev1 instance (MasterverbChannel) driven over the full mix in postprocess().
 const masterReverbWet: f32 = 0.30;
@@ -57,6 +65,23 @@ export function initializeMidiSynth(): void {
     midichannels[7] = new MidiChannel(2, (channel: MidiChannel) => new Snare(channel));
     midichannels[8] = new SololeadChannel(8, (channel: MidiChannel) => new Sololead(channel));
     midichannels[9] = new MidiChannel(4, (channel: MidiChannel) => new Bassguitar(channel));
+
+    // Physical-modeling instruments (voice counts as in the original). They are
+    // ~15-30 dB hotter than the rest of this kit, so each channel volume sets it
+    // level with its counterpart here (pre-master RMS): drums with the kick,
+    // bass with bass/bassguitar, the rest with the pads and leads.
+    midichannels[10] = new PmdrumsChannel(3, (channel: MidiChannel) => new Pmdrums(channel));     // c5 kick, d5 snare, fs5 hat
+    midichannels[10].controlchange(7, 46);
+    midichannels[11] = new PmbassChannel(2, (channel: MidiChannel) => new Pmbass(channel));
+    midichannels[11].controlchange(7, 27);
+    midichannels[12] = new PmguitarChannel(10, (channel: MidiChannel) => new Pmguitar(channel));  // with its amp as channel effect
+    midichannels[12].controlchange(7, 27);
+    midichannels[13] = new PmpianoChannel(10, (channel: MidiChannel) => new Pmpiano(channel));
+    midichannels[13].controlchange(7, 17);
+    midichannels[14] = new PmstringsChannel(8, (channel: MidiChannel) => new Pmstrings(channel));
+    midichannels[14].controlchange(7, 15);
+    midichannels[15] = new PmbrassChannel(4, (channel: MidiChannel) => new Pmbrass(channel));
+    midichannels[15].controlchange(7, 23);
 
     // Global reverb is now the Zita-rev1 MASTER effect (one MasterverbChannel), driven over the
     // full mix in postprocess(). Disable the built-in Freeverb bus so the two don't stack:
