@@ -1,0 +1,59 @@
+// Piano from "monster is close" (reference/monstertheme/synth.ts, Piano +
+// PianoChannel): per side a stiff string (dispersion allpasses from an
+// inharmonicity model, tuned) struck by its own hammer resonator, and on the
+// channel a 42-stage comb network per side that colours and levels it.
+//
+// The hammer must already have run 20 ms when the string first hears it (the
+// original pre-rolls it at note-on and discards that output). `declare preroll`
+// makes the generated voice do the same: at note-on it runs this DSP for 0.02 s
+// with `preroll` = 1 before opening the gate. The hammers restart on preroll's
+// rising edge; the string only listens once the gate is open.
+declare preroll "0.02";
+import("monster.lib");
+
+freq = hslider("freq", 261.63, 20, 20000, 0.01);
+gate = button("gate");
+gain = hslider("gain", 0.8, 0, 1, 0.01);
+preroll = button("preroll");
+
+// Live tweaks (1 = original; string tweaks take effect from the next new note)
+hammerTone = hslider("hammer_tone", 1, 0.02, 2.56, 0.02);  // hammer low-pass
+damping    = hslider("damping", 1, 0.02, 2.56, 0.02);      // string loss, exponential: lower rings longer
+
+env = adsr(0.001, 1.0, 1.0, 3.0, gate);
+ptrig = preroll > preroll';
+strig = gate > gate';
+// the voice had finished (its envelope ran out) - the original's `stopped`
+stopped = env' <= 0;
+
+side(i) = pianostring(strig, stopped, freq, env, damping, hammerIn)
+with {
+    h = hammer(ptrig, gain * hammerTone, freq, noises(2, i));
+    // one sample late: the gate-closed frame before the note already ran the
+    // hammer once more, and the string's first sample must get the 883rd
+    hammerIn = h' * (1 - preroll');
+};
+
+// x4: a Faust voice lands at 0.25 per side (the original adds 1.0).
+process = side(0) * 4, side(1) * 4;
+
+// Channel effect (PianoChannel.preprocess): per side 42 one-sample combs
+// (feedback 0.21, damping 0.4) with 0.1% cross-feed, then the original's
+// 0.5e-15 make-down - the comb chain's gain is ~1e15 in the low end.
+effect = seq(i, 42, stage) : *(0.5e-15), *(0.5e-15)
+with {
+    stage = st ~ (_, _, _, _) : (!, !, !, !, _, _)
+    with {
+        st(ulp, fslp, urp, fsrp, l, r) = ul, fsl, ur, fsr, l2, r2
+        with {
+            yl = ulp;
+            fsl = yl * 0.6 + fslp * 0.4;
+            ul = l * 0.999 + r * 0.001 + fsl * 0.21;
+            l2 = (l + yl) * 0.79;
+            yr = urp;
+            fsr = yr * 0.6 + fsrp * 0.4;
+            ur = r * 0.999 + l2 * 0.001 + fsr * 0.21;
+            r2 = (r + yr) * 0.79;
+        };
+    };
+};

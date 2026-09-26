@@ -12,14 +12,14 @@ import { Snare } from '../faust/snare';
 import { Sololead, SololeadChannel } from '../faust/sololead';
 import { Masterverb, MasterverbChannel } from '../faust/masterverb';
 import { Bassguitar } from '../faust/bassguitar';
-// Physical-modeling instruments ported from the 2020 AssemblyScript song
-// (reference/physicalmodeling/; shared model in faust/physmod.lib).
-import { Pmdrums, PmdrumsChannel } from '../faust/pmdrums';
-import { Pmbass, PmbassChannel } from '../faust/pmbass';
-import { Pmguitar, PmguitarChannel } from '../faust/pmguitar';
-import { Pmpiano, PmpianoChannel } from '../faust/pmpiano';
-import { Pmstrings, PmstringsChannel } from '../faust/pmstrings';
-import { Pmbrass, PmbrassChannel } from '../faust/pmbrass';
+// Physical-modeling instruments ported from "monster is close" (2022)
+// (reference/monstertheme/; shared model in faust/monster.lib).
+import { Mdrums, MdrumsChannel } from '../faust/mdrums';
+import { Mbass, MbassChannel } from '../faust/mbass';
+import { Mguitar, MguitarChannel } from '../faust/mguitar';
+import { Mpiano, MpianoChannel } from '../faust/mpiano';
+import { Mstrings, MstringsChannel } from '../faust/mstrings';
+import { Mbrass, MbrassChannel } from '../faust/mbrass';
 
 // Global master reverb: one Zita-rev1 instance (MasterverbChannel) driven over the full mix in postprocess().
 const masterReverbWet: f32 = 0.30;
@@ -66,23 +66,22 @@ export function initializeMidiSynth(): void {
     midichannels[8] = new SololeadChannel(8, (channel: MidiChannel) => new Sololead(channel));
     midichannels[9] = new MidiChannel(4, (channel: MidiChannel) => new Bassguitar(channel));
 
-    // Physical-modeling instruments (voice counts as in the original). They are
-    // ~15-30 dB hotter than the rest of this kit, so each channel volume sets it
-    // level with its counterpart here (pre-master RMS): drums with the kick,
-    // bass with bass/bassguitar, the rest with the pads and leads; then piano and
-    // brass +7/+4 dB so the arpeggio, motif and stabs are heard in song.js.
-    midichannels[10] = new PmdrumsChannel(3, (channel: MidiChannel) => new Pmdrums(channel));     // c5 kick, d5 snare, fs5 hat
-    midichannels[10].controlchange(7, 46);
-    midichannels[11] = new PmbassChannel(2, (channel: MidiChannel) => new Pmbass(channel));
-    midichannels[11].controlchange(7, 27);
-    midichannels[12] = new PmguitarChannel(10, (channel: MidiChannel) => new Pmguitar(channel));  // with its amp as channel effect
-    midichannels[12].controlchange(7, 27);
-    midichannels[13] = new PmpianoChannel(10, (channel: MidiChannel) => new Pmpiano(channel));
-    midichannels[13].controlchange(7, 26);
-    midichannels[14] = new PmstringsChannel(8, (channel: MidiChannel) => new Pmstrings(channel));
-    midichannels[14].controlchange(7, 15);
-    midichannels[15] = new PmbrassChannel(4, (channel: MidiChannel) => new Pmbrass(channel));
-    midichannels[15].controlchange(7, 29);
+    // Physical-modeling instruments from "monster is close" (voice counts as in
+    // the original). Channel volumes put each level with its counterpart in this
+    // kit (pre-master RMS): the kit at the original's 120, the bass with bass /
+    // bassguitar, the rest with the pads and leads (the guitar's amp is hot).
+    midichannels[10] = new MdrumsChannel(9, (channel: MidiChannel) => new Mdrums(channel));    // c5 kick, d5 snare, fs5 hat, gs5 open hat, f5 g5 a5 b5 toms, cs6 cymbal
+    midichannels[10].controlchange(7, 120);
+    midichannels[11] = new MbassChannel(2, (channel: MidiChannel) => new Mbass(channel));
+    midichannels[11].controlchange(7, 49);
+    midichannels[12] = new MguitarChannel(6, (channel: MidiChannel) => new Mguitar(channel));  // amp + echo as channel effect
+    midichannels[12].controlchange(7, 13);
+    midichannels[13] = new MpianoChannel(10, (channel: MidiChannel) => new Mpiano(channel));   // comb network as channel effect
+    midichannels[13].controlchange(7, 88);
+    midichannels[14] = new MstringsChannel(10, (channel: MidiChannel) => new Mstrings(channel));
+    midichannels[14].controlchange(7, 41);
+    midichannels[15] = new MbrassChannel(5, (channel: MidiChannel) => new Mbrass(channel));
+    midichannels[15].controlchange(7, 58);
 
     // Global reverb is now the Zita-rev1 MASTER effect (one MasterverbChannel), driven over the
     // full mix in postprocess(). Disable the built-in Freeverb bus so the two don't stack:

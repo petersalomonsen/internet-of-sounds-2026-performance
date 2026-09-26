@@ -1,0 +1,266 @@
+// Building blocks for the instruments ported from "monster is close"
+// (reference/monstertheme/synth.ts, which builds on the app's
+// synth/waveguide.ts, fx/delayline.ts, fx/allpass.ts, synth/biquad.ts and
+// synth/envelope.class.ts). Everything is written out to behave like the
+// AssemblyScript, not taken from the Faust libraries, so a port sounds the same
+// whichever Faust compiler builds it. Redesigning a block here changes every
+// instrument that uses it (mdrums, mbass, mguitar, mpiano, mstrings, mbrass).
+import("stdfaust.lib");
+
+SR = ma.SR;
+
+// ---- notes ------------------------------------------------------------------
+
+// MIDI note number back from freq (freq is the only carrier of the note).
+notenum(f) = 12 * log(f / 440) / log(2) + 69;
+key(f) = int(notenum(f) + 0.5);
+
+// The originals' noise is uniform in [-0.5, 0.5); each waveguide its own stream.
+noises(n, i) = no.multinoise(n) : ba.selector(i, n) : *(0.5);
+
+// Samples since the last `rst` (0 on the reset sample itself).
+since(rst) = (+(1) : *(1 - rst)) ~ _;
+
+// ---- envelopes (synth/envelope.class.ts) -----------------------------------
+
+// Linear ADSR on a gate: attack ramps from the current value, release from
+// wherever it is. State 0 = release/idle, 1 attack, 2 decay, 3 sustain.
+adsr(at, dt, sl, rt, g) = step ~ (_, _) : (!, _)
+with {
+    step(st, v) = st2, v2
+    with {
+        s0 = ba.if(g > g', 1, ba.if(g < g', 0, st));
+        va = min(1, v + 1 / max(1, at * SR));
+        vd = max(sl, v - 1 / max(1, dt * SR));
+        vr = max(0, v - 1 / max(1, rt * SR));
+        v2 = ba.selectn(4, s0, vr, va, vd, v);
+        st2 = ba.selectn(4, s0, 0, ba.if(va >= 1, 2, 1), ba.if(vd <= sl, 3, 2), 3);
+    };
+};
+
+// A waveguide's exciter envelope, Envelope(at, dt, 0, dt): attack() on `trig`
+// (from the current value, or from 0 when `zero`), decay to 0 and stay there.
+// `off` releases it with a step of `offstep` per sample (the strings do that).
+// State 0 idle, 1 attack, 2 decay, 3 release.
+excenv(at, dt, trig, zero, off, offstep) = step ~ (_, _) : (!, _)
+with {
+    step(st, v) = st2, v2
+    with {
+        vz = ba.if(zero, 0, v);
+        s0 = ba.if(trig, 1, ba.if(off, 3, st));
+        va = min(1, vz + 1 / max(1, at * SR));
+        vd = max(0, vz - 1 / max(1, dt * SR));
+        vr = max(0, vz - offstep);
+        v2 = ba.selectn(4, s0, vz, va, vd, vr);
+        st2 = ba.selectn(4, s0, 0, ba.if(va >= 1, 2, 1), ba.if(vd <= 0, 0, 2), ba.if(vr <= 0, 0, 3));
+    };
+};
+
+// ---- biquads (synth/biquad.ts) -----------------------------------------------
+
+QB = 0.7071067811865475;
+
+// RBJ cookbook low/high-pass coefficient k (0..4 = b0, b1, b2, a1, a2), f0
+// clamped to SR/2 - 1000 like the original.
+rbj(hp, fc, q, k) = ba.selectn(5, k, b0 / a0, b1 / a0, b0 / a0, -2 * c / a0, (1 - al) / a0)
+with {
+    w = 2 * ma.PI * min(fc, SR / 2 - 1000) / SR;
+    c = cos(w);
+    al = sin(w) / (2 * q);
+    a0 = 1 + al;
+    b0 = ba.if(hp, (1 + c) * 0.5, (1 - c) * 0.5);
+    b1 = ba.if(hp, 0 - (1 + c), 1 - c);
+};
+
+// process(): direct form I; `rst` clears the state on that sample (clearBuffers()).
+df1(rst, hp, fc, q, x) = st ~ (_, _, _, _) : (!, !, _, !)
+with {
+    b0 = rbj(hp, fc, q, 0); b1 = rbj(hp, fc, q, 1); b2 = rbj(hp, fc, q, 2);
+    a1 = rbj(hp, fc, q, 3); a2 = rbj(hp, fc, q, 4);
+    st(x1p, x2p, y1p, y2p) = x, x1, y, y1
+    with {
+        k = 1 - rst;
+        x1 = x1p * k; x2 = x2p * k; y1 = y1p * k; y2 = y2p * k;
+        y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+    };
+};
+// processForm2(): transposed direct form II.
+tdf2(rst, hp, fc, q, x) = st ~ (_, _) : (!, !, _)
+with {
+    b0 = rbj(hp, fc, q, 0); b1 = rbj(hp, fc, q, 1); b2 = rbj(hp, fc, q, 2);
+    a1 = rbj(hp, fc, q, 3); a2 = rbj(hp, fc, q, 4);
+    st(s1p, s2p) = s1n, s2n, y
+    with {
+        k = 1 - rst;
+        y = s1p * k + b0 * x;
+        s1n = s2p * k + b1 * x - a1 * y;
+        s2n = b2 * x - a2 * y;
+    };
+};
+// The same with the coefficients given (for coefficients selected at run time
+// from precomputed sets, e.g. one per drum).
+df1k(rst, b0, b1, b2, a1, a2, x) = st ~ (_, _, _, _) : (!, !, _, !)
+with {
+    st(x1p, x2p, y1p, y2p) = x, x1, y, y1
+    with {
+        k = 1 - rst;
+        x1 = x1p * k; x2 = x2p * k; y1 = y1p * k; y2 = y2p * k;
+        y = b0 * x + b1 * x1 + b2 * x2 - a1 * y1 - a2 * y2;
+    };
+};
+tdf2k(rst, b0, b1, b2, a1, a2, x) = st ~ (_, _) : (!, !, _)
+with {
+    st(s1p, s2p) = s1n, s2n, y
+    with {
+        k = 1 - rst;
+        y = s1p * k + b0 * x;
+        s1n = s2p * k + b1 * x - a1 * y;
+        s2n = b2 * x - a2 * y;
+    };
+};
+lpf(rst, fc, x) = df1(rst, 0, fc, QB, x);
+hpf(rst, fc, x) = df1(rst, 1, fc, QB, x);
+
+// calculatePhaseAndMagnitudeForFreq() of a Butterworth low-pass at fc: its
+// phase delay at f in samples (k = 0), and its magnitude there (k = 1).
+lpResponse(fc, f, k) = ba.selectn(2, k, phaseSamples, mag)
+with {
+    b0 = rbj(0, fc, QB, 0); b1 = rbj(0, fc, QB, 1); b2 = rbj(0, fc, QB, 2);
+    a1 = rbj(0, fc, QB, 3); a2 = rbj(0, fc, QB, 4);
+    w = 2 * ma.PI * f / SR;
+    c1 = cos(-w); c2 = cos(-2 * w); s1 = sin(-w); s2 = sin(-2 * w);
+    rz = b0 + b1 * c1 + b2 * c2; iz = b1 * s1 + b2 * s2;
+    rp = 1 + a1 * c1 + a2 * c2; ip = a1 * s1 + a2 * s2;
+    d = rp * rp + ip * ip;
+    rh = (rz * rp + iz * ip) / d; ih = (iz * rp - rz * ip) / d;
+    mag = sqrt(rh * rh + ih * ih);
+    phaseSamples = 0 - (atan2(ih, rh) / (2 * ma.PI)) * (SR / f);
+};
+lpPhase(fc, f) = lpResponse(fc, f, 0);
+lpMag(fc, f) = lpResponse(fc, f, 1);
+
+// ---- allpass and delay (fx/allpass.ts, fx/delayline.ts) ---------------------
+
+// AllPassFloat: y = c (x - y') + x', coefficient from a delay `delta`.
+apc(delta) = (1 - delta) / (1 + delta);
+ap(rst, c, x) = f ~ _
+with {
+    f(yp) = ba.if(rst, c * x, c * (x - yp) + x');
+};
+aps(n, rst, c) = seq(i, n, ap(rst, c));
+
+// DelayLineFloat's read side for a loop: w delayed `len` samples (integer part
+// by the delay, fraction by its allpass). After `rst` (setNumFramesAndClear)
+// the line reads zeros until it has been filled again, and the allpass restarts.
+// Use as the feedback path of `~` (which adds the first sample of delay).
+delayline(rst, len) = de.delay(8192, n - 1) : *(since(rst) >= n) : ap(rst, apc(d))
+with {
+    n = max(1, int(len));
+    d = max(0, len - n);   // (a line not yet started has len 0)
+};
+
+// ---- the waveguide (synth/waveguide.ts) ---------------------------------------
+
+// WaveGuide.start(freq, fbFc) on `trig`: when freq differs from the last start
+// the string is set up afresh (loop low-pass for fbFc clamped to 10-20000 Hz,
+// delay = SR/freq minus that filter's phase delay at freq, cleared filters,
+// exciter value back to 0); with the same freq it keeps ringing and is just
+// excited again. process(): exciter noise x envelope -> low-pass -> + delay
+// -> `inner` (the drum guides' allpasses; `_` for plain) -> loop low-pass
+// (form 2) -> write x feedback. Returns the loop signal.
+//
+//   exc     the noise signal          excOff/offstep  release the exciter (strings)
+//   fb      feedback per pass         inner(rst)      extra processing in the loop
+waveguide(excAt, excDt, excFc, fb, freq, fbFc, gate, exc, excOff, offstep, inner) =
+    waveguideAs(freq, excAt, excDt, excFc, fb, freq, fbFc, gate, exc, excOff, offstep, inner);
+// The same, set up afresh when `ident` changes rather than freq: one Faust
+// voice standing in for several fixed-pitch originals (the four toms).
+waveguideAs(ident, excAt, excDt, excFc, fb, freq, fbFc, gate, exc, excOff, offstep, inner) = loop ~ delayline(rst, len) : (!, _)
+with {
+    trig = gate > gate';
+    held = ba.sAndH(trig, ident);
+    rst = trig & (ident != held');
+    fc = ba.sAndH(rst, max(10, min(20000, fbFc)));
+    len = ba.sAndH(rst, SR / freq - lpPhase(fc, freq));
+    x = exc * excenv(excAt, excDt, trig, rst, excOff, offstep) : lpf(rst, excFc);
+    loop(read) = w, s
+    with {
+        s = x + read : inner(rst) : tdf2(rst, 0, fc, QB);
+        w = s * fb;
+    };
+};
+plain(rst) = _;
+
+// ---- piano (PianoExciterWaveGuide + PianoWaveGuide) -----------------------------
+
+// The hammer: its own dispersive resonator (a 67.8-sample delay through 75
+// allpasses, a 100 Hz high-pass in the feedback), fed by noise / t^1.8 through
+// a velocity-dependent low-pass, feedback shrinking by 0.9999 per sample.
+// Restarted from scratch on `trig` - which the voice fires at the start of the
+// note's pre-roll, so by the time the string hears it it has run 20 ms.
+hammer(trig, vel, f, exc) = loop ~ delayline(trig, SR / 650) : (!, _)
+with {
+    // accumulated per sample like the original (t += 0.02/SR, feedback *= 0.9999)
+    t = ba.if(trig, 0.0005 + 0.02 / SR, _ + 0.02 / SR) ~ _;
+    fbl = ba.if(trig, 1, _ * 0.9999) ~ _;
+    fcx = ba.sAndH(trig, (2500 + pow(f, 0.8)) * vel);
+    att = ba.sAndH(trig, 1 / (log(f) / log(2)));
+    drive = exc / pow(t, 1.8) : lpf(trig, fcx) : *(att);
+    loop(read) = w, s
+    with {
+        s = drive + hpf(trig, 100, read) : aps(75, trig, apc(SR / 650));
+        w = s * fbl;
+    };
+};
+
+// The string: set up afresh on `trig` when the note changed or the voice had
+// finished (`stopped`): 18 kHz loop low-pass (form 1), five dispersion
+// allpasses from a stiff-string model (inharmonicity B = 0.00003), the delay
+// shortened by their phase and the filter's, feedback from the filter's loss.
+// The voice envelope sits inside the loop, so a released note is damped.
+dispersion(f0) = (pd(a1) - pd(1 / a1))
+with {
+    B = 0.00003; M = 5;
+    lb = log(max(B, 0.000001));
+    k1 = -0.00179; k2 = -0.0233; k3 = -2.93;
+    m1 = 0.0126; m2 = 0.0606; m3 = -0.00825; m4 = 1.97;
+    wT = 2 * ma.PI * f0 / SR;
+    kd = exp(k1 * lb * lb + k2 * lb + k3);
+    Cd = exp((m1 * log(M) + m2) * lb + m3 * log(M) + m4);
+    trt = pow(2, 1 / 12);
+    ikey = log(f0 * trt / 27.5) / log(trt);
+    D = exp(Cd - ikey * kd);
+    a1 = (1 - D) / (1 + D);
+    pd(a) = atan(sin(wT) / (a + cos(wT))) / wT;
+};
+pianostring(trig, stopped, f, env, damping, hammerOut) = loop ~ delayline(rst, len) : (!, _)
+with {
+    held = ba.sAndH(trig, f);
+    rst = trig & ((f != held') | stopped);
+    df = ba.sAndH(rst, dispersion(f));
+    len = ba.sAndH(rst, SR / f - lpPhase(18000, f) - df * 5);
+    fb = ba.sAndH(rst, pow(0.20 / lpMag(18000, f), 1.01 / f));
+    loop(read) = w, s
+    with {
+        s = hammerOut + lpf(rst, 18000, read) : aps(5, rst, apc(df)) : *(env);
+        w = s * damped(fb, damping);
+    };
+};
+
+// ---- shared ---------------------------------------------------------------
+
+// Live tweaks: every slider scales one original value, 1 = the original sound,
+// 0.02-2.56 in steps of 0.02 so a 7-bit MIDI CC lands exactly on 1 (CC 49).
+// `damping` is exponential: each 0.5 multiplies the loop loss (1 - feedback)
+// by 10, so it has a range whatever the original loss.
+damped(fb0, d) = 1 - (1 - fb0) * pow(100, d - 1);
+
+// synth/clip.ts softclip.
+softclip(x) = ba.if(x > 1, 2.0 / 3, ba.if(x < -1, -2.0 / 3, x - x * x * x / 3));
+
+// A stereo echo like the song's (0.3 feedback, send already scaled by caller):
+// returns only the echo.
+echo(dt, x) = (+(x) ~ (de.delay(131072, n - 1) : *(0.3))) : de.delay(131072, n) : *(0.3)
+with {
+    n = max(1, int(dt * SR));
+};

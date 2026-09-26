@@ -73,19 +73,19 @@ layered *before* it, un-awaited. Keep that shape.
 | 7 | `snare` | `Snare` | backbeat and fills (`d3`) | `createTrack(7, 1)`: one step per beat |
 | 8 | `createTrack(8)` | `Sololead` + channel | the live solo lead; **the keyboard channel on stage** | CC 0 vibrato depth, 1 vibrato rate, 2 cutoff, 3 resonance, 4 drive |
 | 9 | `bassguitar` | `Bassguitar` | Karplus-Strong bass guitar (from Beach Drive) | |
-| 10 | `createTrack(10)` | `Pmdrums` | physical-modeling kit (noise drums): **c5 kick, d5 snare, fs5 hat**, other notes silent | CC 0 hat cutoff, 1 hat decay, 2 hat level, 3 kick click, 4 kick decay, 5 kick level, 6 kick sweep, 8 snare decay, 9 snare level, 11 snare snap |
-| 11 | `createTrack(11)` | `Pmbass` | waveguide bass, long bright ring | CC 0 bright, 1 damping, 2 exciter tone, 3 pluck |
-| 12 | `createTrack(12)` | `Pmguitar` + amp | plucked waveguide guitar through a soft-clip amp | CC 0 bright, 1 damping, 2 exciter tone, 3 drive, 4 amp feedback |
-| 13 | `createTrack(13)` | `Pmpiano` | three-string waveguide piano | CC 0 bright, 1 damping, 2 hammer tone |
-| 14 | `createTrack(14)` | `Pmstrings` | bowed waveguide string, slow swell | CC 0 bow tone, 1 bright, 2 damping |
-| 15 | `createTrack(15)` | `Pmbrass` | two bright waveguides, breathy attack | CC 0 breath tone, 1 bright, 2 damping |
+| 10 | `mdrums` | `Mdrums` | waveguide kit from "monster is close": **c5 kick, d5 snare, fs5 hat, gs5 open hat, f5 g5 a5 b5 toms, cs6 cymbal**, other notes silent | CC 0 cymbal level, 1 hat level, 2 kick level, 3 snare level, 4 tom level |
+| 11 | `mbass` | `Mbass` | waveguide bass, deep and long | CC 0 bright, 1 damping, 2 exciter tone |
+| 12 | `mguitar` | `Mguitar` + amp | two detuned strings (L/R) into a soft-clip amp with a body resonance and echo | CC 0 bright, 1 damping, 2 exciter tone, 3 drive, 4 echo time, 5 echo send |
+| 13 | `mpiano` | `Mpiano` + combs | stiff-string piano, hammer resonator, stereo | CC 0 damping, 1 hammer tone |
+| 14 | `mstrings` | `Mstrings` | bowed waveguide pair (L/R) | CC 0 bow tone, 1 bright, 2 damping |
+| 15 | `mbrass` | `Mbrass` | two bright waveguides, breathy attack | CC 0 breath tone, 1 bright, 2 damping |
 
-Channels 10–15 (the `Pm…` physical-modeling instruments, `faust/physmod.lib`; track
-variables `pmdrums` … `pmbrass`) play in the current song: piano arpeggio and strings in
-`part2`, strings and guitar chops in `part4`, all six in `part5`. Reshape them live with
-their CCs. The
-CCs all work the same way: **CC 49 = the original sound**, CC 98 ≈ ×2, CC 25 ≈ ×½ of that
-quantity (`damping` is exponential: lower rings longer).
+Channels 10–15 are the physical-modeling instruments from "monster is close"
+(`faust/m*.dsp` on `faust/monster.lib`). They play in the current song: piano arpeggio and
+strings in `part2`, strings and guitar chops in `part4`, all six in `part5`. Reshape them
+live with their CCs: **CC 49 = the original sound**, CC 98 ≈ ×2, CC 25 ≈ ×½ of that
+quantity (`damping` is exponential: lower rings longer). String and loop tweaks apply from
+the next *new* note (a repeated note keeps its string).
 
 `synth.ts` also runs a Zita-rev1 master reverb over the whole mix (`masterReverbWet = 0.30`)
 and the mastering chain (`gainDb 13`, ceiling −1.5 dBTP, high-pass 35 Hz). Leave both alone
@@ -152,8 +152,8 @@ steps in), `uCrowd` (crowd revealed), `uZoom` (pull back), `uCamMove` (orbit), `
   not a CC; leave it. Vibrato/cutoff/resonance/drive on ch 8 are CC 0–4 (`controlchange`).
 - **"Play it on the piano / guitar / strings" (physical modeling)**: change that block's
   `createTrack(N)` to 13 / 12 / 14 (brass 15, bass 11). Compile. **"Brighter" / "longer
-  ring" / "more drive"** on one of them: `createTrack(13).steps(1, [ controlchange(0, 98) ]);`
-  at the part start (channel 13, CC 0 bright, ×2; CC 49 is the original — see the channel
+  ring" / "more drive"** on one of them: `mguitar.steps(1, [ controlchange(3, 98) ]);`
+  at the part start (channel 12, CC 3 drive, ×2; CC 49 is the original — see the channel
   table). Compile.
 - **Lights / crowd / camera**: `setVisual('uLights', 1, 3.0)` etc. at the start of the
   part (guarded in a loop part). "Dark" is the same name to `0`.
