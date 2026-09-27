@@ -33,11 +33,11 @@ It clones this repo, compiles and plays entirely in your browser:
 3. Play the take; insert the recording; ask for the bass under it, a piano part on top, a
    variation with the choir…
 4. Move between parts by typing a part name or "next" in the agent panel (or
-   `sendSignal('go', '<part>')` from anywhere): the song leaves the current part on its next
-   bar line, in that part's own meter.
+   `sendSignal('go', '<part>')` from anywhere): the current part plays out, then the
+   song moves on.
 
 A part is always `setBeatsPerBar(3 or 4)`, `definePartStart(name)`, its layers, one awaited
-pattern that gives it its length, and a `waitForSignal('go', { loop: 'part', quantize: 'bar' })`.
+pattern that gives it its length, and a `waitForSignal('go')`.
 `loopParts(false);` at the top of the song plays it straight through instead (to hear the
 whole arrangement); an export always plays straight through.
 

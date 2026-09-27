@@ -34,7 +34,7 @@ definePartStart('strings');              // unique name — the performer jumps 
 stringsTake();                           // layers: plain calls, NOT awaited
 bassLine();
 await hihat.steps(1, [gs5(0.1, 100), fs5(0.1, 55), fs5(0.1, 55)].repeat(7));   // ONE awaited beat-keeper = the part's length
-await waitForSignal('go', { loop: 'part', quantize: 'bar' });
+await waitForSignal('go');
 ```
 
 - A part is **bars × beats per bar** long: 8 bars of 3/4 = 24 beats, 4 bars of 4/4 = 16. The
@@ -153,6 +153,5 @@ not what was asked, you broke a length — fix it before answering.
 
 ## Looping parts
 
-Each part ends in `waitForSignal('go', { loop: 'part', quantize: 'bar' })`: it loops until a
-signal, then leaves on the next bar line of *that part's* meter. A recompile while a part loops
-keeps the position; an edit to the current part is heard on its next pass — say "next round".
+Each part ends in `waitForSignal('go')`: it loops until a signal, then leaves when the part
+has played out (the next pass does not start). A recompile while a part loops keeps the position; an edit to the current part is heard on its next pass — say "next round".
