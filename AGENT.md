@@ -17,18 +17,22 @@ audience hears every change on its next pass. Aim for **a few seconds per reques
   voices below are the palette; reshape them with their CCs.
 - **Moving between parts is not an edit.** While the song plays, a part name or "next" typed in
   the panel jumps by itself; `go_to_part` / `send_signal` do the same from your tools.
-  "Play it through" → `loopParts(false);` after `setBPM` (remove it to loop again).
+  "Play it through" → `loopParts(false);` after `setBPM` (remove it to loop again) — never
+  comment out the `waitForSignal` lines.
 - **Do not touch** `faust/`, `shader.glsl`, the `addInstrument` lines and the track declarations
   at the top of `song.js`. In `synth.ts` only the channel volumes (`controlchange(7, …)`) change.
 
 ## The song's shape — keep it exactly like this
 
 ```javascript
+function stringsTake() { strings.play([ /* a take */ ]); }   // every layer is a named function
+function bassLine() { bass.play([ /* ... */ ]); }            // (above the first part)
+
 // === PART "strings" (8 bars of 3/4) ===
 setBeatsPerBar(3);                       // the part's meter: 3 or 4 (always write it)
 definePartStart('strings');              // unique name — the performer jumps by it
-strings.play([ /* a take */ ]);          // layers: plain calls, NOT awaited
-bass.play([ /* ... */ ]);
+stringsTake();                           // layers: plain calls, NOT awaited
+bassLine();
 await hihat.steps(1, [gs5(0.1, 100), fs5(0.1, 55), fs5(0.1, 55)].repeat(7));   // ONE awaited beat-keeper = the part's length
 await waitForSignal('go', { loop: 'part', quantize: 'bar' });
 ```
@@ -42,6 +46,20 @@ await waitForSignal('go', { loop: 'part', quantize: 'bar' });
   (takes are placed by beat, so they follow the tempo).
 - After compiling, `song_summary` lists the parts in their own bars and meter — check a new
   part came out the length that was asked for.
+- **Layers are functions, parts only call them.** A take or pattern becomes a named function
+  (`padTake()`, `bassChords()`, `beat4()`) defined above the first part; a new part that keeps
+  the bass and adds a beat is `bassChords(); beat4();` — never a copy of the rows. A variation
+  is a new function next to the old one.
+- **Write patterns, not rows.** Anything regular is `steps()` with a helper, not dozens of
+  `[beat, note]` rows (rows are for recorded takes):
+
+  ```javascript
+  const pump = (lo, hi) => [lo(0.24, 100), lo(0.24, 50), hi(0.24, 100), lo(0.24, 100)];  // 1 e + a
+  function bassChords() {                  // 16ths, roots d d f a (one bar each)
+    bassguitar.steps(4, [...pump(d2, d3).repeat(7), ...pump(f2, f3).repeat(3), ...pump(a2, a3).repeat(3)]);
+  }
+  ```
+  `pump` is one beat of 16ths: `.repeat(3)` = one 4/4 bar, `.repeat(7)` = two.
 
 ## Channels and instruments
 
