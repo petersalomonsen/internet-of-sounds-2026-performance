@@ -85,7 +85,7 @@ export function initializeMidiSynth(): void {
     midichannels[7].controlchange(2, 49);    // bow tone - exciter low-passes (610 / 620 Hz)
 
     midichannels[8] = new MchoirChannel(10, (channel: MidiChannel) => new Mchoir(channel));
-    midichannels[8].controlchange(7, 55);    // volume
+    midichannels[8].controlchange(7, 40);    // volume
     midichannels[8].controlchange(0, 49);    // bright - loop low-pass
     midichannels[8].controlchange(1, 49);    // breath tone - breath low-pass (2500 Hz)
 
