@@ -267,7 +267,7 @@ export class Bassguitar extends MidiVoice {
 
     nextframe(): void {
         this.dsp.frame(this.fin, this.fout);
-        const output: f32 = unchecked(this.fout[0]);
+        const output: f32 = this.fout[0];
         if (Mathf.abs(output) < 0.001) {
             this.silentSamples++;
         } else {

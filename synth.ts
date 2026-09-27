@@ -32,15 +32,15 @@ export function initializeMidiSynth(): void {
     // Faust voice stays busy briefly after note-off). Channel volumes balance the
     // song's mix (measured on a full render: each layer's level within its part).
     midichannels[0] = new MdrumsChannel(9, (channel: MidiChannel) => new Mdrums(channel));        // c5 kick, d5 snare, fs5 hat, gs5 open hat, f5 g5 a5 b5 toms, cs6 cymbal
-    midichannels[0].controlchange(7, 120);
+    midichannels[0].controlchange(7, 100);
     midichannels[1] = new MbassChannel(2, (channel: MidiChannel) => new Mbass(channel));
-    midichannels[1].controlchange(7, 49);
+    midichannels[1].controlchange(7, 70);
     midichannels[2] = new MguitarChannel(6, (channel: MidiChannel) => new Mguitar(channel));      // amp + echo as channel effect
-    midichannels[2].controlchange(7, 40);
+    midichannels[2].controlchange(7, 20);
     midichannels[3] = new MpianoChannel(10, (channel: MidiChannel) => new Mpiano(channel));       // comb network as channel effect
-    midichannels[3].controlchange(7, 88);
+    midichannels[3].controlchange(7, 108);
     midichannels[4] = new MfluteChannel(4, (channel: MidiChannel) => new Mflute(channel));        // echo as channel effect
-    midichannels[4].controlchange(7, 32);
+    midichannels[4].controlchange(7, 50);
     midichannels[5] = new Jumppad2Channel(8, (channel: MidiChannel) => new Jumppad2(channel));
     midichannels[6] = new MidiChannel(8, (channel: MidiChannel) => new Warmpad(channel));
     midichannels[7] = new MstringsChannel(10, (channel: MidiChannel) => new Mstrings(channel));
@@ -49,7 +49,7 @@ export function initializeMidiSynth(): void {
     midichannels[8].controlchange(7, 55);
     midichannels[9] = new MidiChannel(4, (channel: MidiChannel) => new Bassguitar(channel));
     midichannels[10] = new MbrassChannel(5, (channel: MidiChannel) => new Mbrass(channel));
-    midichannels[10].controlchange(7, 58);
+    midichannels[10].controlchange(7, 40);
     midichannels[11] = new MpadsynthChannel(15, (channel: MidiChannel) => new Mpadsynth(channel)); // gain + 4 kHz low-pass as channel effect
     midichannels[11].controlchange(7, 74);
 
