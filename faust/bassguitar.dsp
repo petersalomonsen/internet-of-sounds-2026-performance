@@ -28,9 +28,16 @@ loopfc  = 7.0*freq;
 phasedel = pcoef(loopfc) / (1.0 - pcoef(loopfc));
 deltime  = max(2.0, ma.SR/freq - 1.0 - phasedel);
 
-string = exciter : (+ : onepole(loopfc)) ~ (*(0.999999) : de.fdelay4(MAXDEL, deltime));
+// LOOP GAIN: was 0.999999 (a reused voice still held a near-full-amplitude
+// standing wave, so a retrigger's fresh noise burst stacked on top -> jump/click).
+// 0.975 combined with the loop-filter loss still rings ~2.5 s at d2 but decays,
+// and the loop is damped harder while the gate is down so repeats don't pile up.
+loopgain = (0.975*gate + 0.85*(1.0 - gate)) : si.smoo;
 
-// AMP ENV: linear attack 0.1, sustain 1.0, release 0.1
-ampenv = en.asr(0.1, 1.0, 0.1, gate);
+string = exciter : (+ : onepole(loopfc)) ~ (*(loopgain) : de.fdelay4(MAXDEL, deltime));
+
+// AMP ENV: short but click-free - 5 ms attack, 45 ms release, so a retrigger
+// 167 ms apart always finds the envelope settled (and any release completed).
+ampenv = en.asr(0.005, 1.0, 0.045, gate);
 
 process = string * ampenv * gain * 11.0;
