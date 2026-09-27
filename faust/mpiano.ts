@@ -76,15 +76,15 @@ function _copysign(a: f64, b: f64): f64 {
 export class MpianoDsp {
     fSampleRate: i32;
     fVec7: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec113: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec22780: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec22813: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec23803: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec23836: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec24827: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec24851: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec24934: StaticArray<f32> = new StaticArray<f32>(2);
-    fVec24957: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec134: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec22828: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec22861: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec23851: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec23884: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec24900: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec24924: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec25008: StaticArray<f32> = new StaticArray<f32>(2);
+    fVec25031: StaticArray<f32> = new StaticArray<f32>(2);
     fButton4: f32;
     fSlow0: f32;
     fButton0: f32;
@@ -103,9 +103,11 @@ export class MpianoDsp {
     iConst0: i32;
     fConst10: f32;
     fConst11: f32;
-    fHslider5: f32;
+    fHslider6: f32;
     fSlow4: f32;
     fConst12: f32;
+    fHslider2: f32;
+    fHslider3: f32;
     fConst13: f32;
     fSlow5: f32;
     fSlow6: f32;
@@ -114,45 +116,45 @@ export class MpianoDsp {
     fSlow9: f32;
     fSlow10: f32;
     fSlow11: f32;
-    fHslider2: f32;
-    fHslider3: f32;
-    fConst14: f32;
     fSlow12: f32;
+    iConst1: i32;
+    fConst15: f32;
+    fConst16: f32;
+    fConst18: f32;
+    fConst19: f32;
+    fConst20: f32;
     fSlow13: f32;
     fSlow14: f32;
+    fHslider5: f32;
     fSlow15: f32;
     fSlow16: f32;
     fSlow17: f32;
     fSlow18: f32;
     fSlow19: f32;
-    iConst1: i32;
-    fConst16: f32;
-    fConst17: f32;
-    fConst19: f32;
-    fConst20: f32;
+    fSlow20: f32;
     fConst22: f32;
     fConst23: f32;
-    fSlow20: f32;
     fSlow21: f32;
-    fConst24: f32;
     fSlow22: f32;
+    fConst24: f32;
     fSlow23: f32;
     fSlow24: f32;
     fSlow25: f32;
-    fConst26: f32;
     fSlow26: f32;
-    fConst27: f32;
+    fConst26: f32;
     fSlow27: f32;
+    fConst27: f32;
     fSlow28: f32;
     fSlow29: f32;
     fSlow30: f32;
-    fConst28: f32;
     fSlow31: f32;
+    fConst28: f32;
     fSlow32: f32;
     fSlow33: f32;
     fSlow34: f32;
-    fConst29: f32;
     fSlow35: f32;
+    fConst29: f32;
+    fSlow36: f32;
     fRec0: StaticArray<f32> = new StaticArray<f32>(16384);
     fRec0_1: StaticArray<f32> = new StaticArray<f32>(2);
     fIOTA: i32;
@@ -382,6 +384,7 @@ export class MpianoDsp {
     buildUserInterface(ui_interface: usize): void {
         // ui openbox mpiano
         // ui slider damping
+        // ui slider dispersion
         // ui slider freq
         // ui slider gain
         // ui button gate
@@ -395,40 +398,41 @@ export class MpianoDsp {
         this.fButton4 = 0.0;
         this.fButton0 = 0.0;
         this.fHslider1 = 261.6300048828125;
-        this.fHslider5 = 1.0;
+        this.fHslider6 = 1.0;
         this.fHslider2 = 0.800000011920929;
         this.fHslider3 = 1.0;
+        this.fHslider5 = 1.0;
     }
     instanceClear(): void {
         for (let lDelay0: i32 = 0; lDelay0 < <i32>(2); lDelay0 = lDelay0 + 1) {
             unchecked(this.fVec7[lDelay0] = 0.0);
         }
         for (let lDelay1: i32 = 0; lDelay1 < <i32>(2); lDelay1 = lDelay1 + 1) {
-            unchecked(this.fVec113[lDelay1] = 0.0);
+            unchecked(this.fVec134[lDelay1] = 0.0);
         }
         for (let lDelay2: i32 = 0; lDelay2 < <i32>(2); lDelay2 = lDelay2 + 1) {
-            unchecked(this.fVec22780[lDelay2] = 0.0);
+            unchecked(this.fVec22828[lDelay2] = 0.0);
         }
         for (let lDelay3: i32 = 0; lDelay3 < <i32>(2); lDelay3 = lDelay3 + 1) {
-            unchecked(this.fVec22813[lDelay3] = 0.0);
+            unchecked(this.fVec22861[lDelay3] = 0.0);
         }
         for (let lDelay4: i32 = 0; lDelay4 < <i32>(2); lDelay4 = lDelay4 + 1) {
-            unchecked(this.fVec23803[lDelay4] = 0.0);
+            unchecked(this.fVec23851[lDelay4] = 0.0);
         }
         for (let lDelay5: i32 = 0; lDelay5 < <i32>(2); lDelay5 = lDelay5 + 1) {
-            unchecked(this.fVec23836[lDelay5] = 0.0);
+            unchecked(this.fVec23884[lDelay5] = 0.0);
         }
         for (let lDelay6: i32 = 0; lDelay6 < <i32>(2); lDelay6 = lDelay6 + 1) {
-            unchecked(this.fVec24827[lDelay6] = 0.0);
+            unchecked(this.fVec24900[lDelay6] = 0.0);
         }
         for (let lDelay7: i32 = 0; lDelay7 < <i32>(2); lDelay7 = lDelay7 + 1) {
-            unchecked(this.fVec24851[lDelay7] = 0.0);
+            unchecked(this.fVec24924[lDelay7] = 0.0);
         }
         for (let lDelay8: i32 = 0; lDelay8 < <i32>(2); lDelay8 = lDelay8 + 1) {
-            unchecked(this.fVec24934[lDelay8] = 0.0);
+            unchecked(this.fVec25008[lDelay8] = 0.0);
         }
         for (let lDelay9: i32 = 0; lDelay9 < <i32>(2); lDelay9 = lDelay9 + 1) {
-            unchecked(this.fVec24957[lDelay9] = 0.0);
+            unchecked(this.fVec25031[lDelay9] = 0.0);
         }
         for (let lRec10: i32 = 0; lRec10 < <i32>(16384); lRec10 = lRec10 + 1) {
             unchecked(this.fRec0[lRec10] = 0.0);
@@ -732,17 +736,17 @@ export class MpianoDsp {
         let fConst9: f32 = max<f32>(0.0, (fConst6 - <f32>(this.iConst0)));
         this.fConst10 = (1.0 - fConst9);
         this.fConst11 = (1.0 + fConst9);
-        this.fConst12 = (this.fConst0 * 0.15915493667125702);
-        this.fConst13 = (6.2831854820251465 / this.fConst0);
-        this.fConst14 = ((this.fConst0 * 0.5) - 1000.0);
+        this.fConst12 = (6.2831854820251465 / this.fConst0);
+        this.fConst13 = ((this.fConst0 * 0.5) - 1000.0);
         this.iConst1 = min<i32>(<i32>(8192), max<i32>(<i32>(0), (this.iConst0 - <i32>(1))));
-        let fConst15: f32 = (this.fConst13 * min<f32>(100.0, this.fConst14));
-        this.fConst16 = Mathf.cos(fConst15);
-        this.fConst17 = (this.fConst16 + 1.0);
-        let fConst18: f32 = (0.7071067690849304 * Mathf.sin(fConst15));
-        this.fConst19 = (1.0 - fConst18);
-        this.fConst20 = (fConst18 + 1.0);
-        let fConst21: f32 = (this.fConst13 * min<f32>(18000.0, this.fConst14));
+        let fConst14: f32 = (this.fConst12 * min<f32>(100.0, this.fConst13));
+        this.fConst15 = Mathf.cos(fConst14);
+        this.fConst16 = (this.fConst15 + 1.0);
+        let fConst17: f32 = (0.7071067690849304 * Mathf.sin(fConst14));
+        this.fConst18 = (1.0 - fConst17);
+        this.fConst19 = (fConst17 + 1.0);
+        this.fConst20 = (this.fConst0 * 0.15915493667125702);
+        let fConst21: f32 = (this.fConst12 * min<f32>(18000.0, this.fConst13));
         this.fConst22 = Mathf.cos(fConst21);
         this.fConst23 = (1.0 - this.fConst22);
         this.fConst24 = (12.566370964050293 / this.fConst0);
@@ -766,38 +770,39 @@ export class MpianoDsp {
         this.fSlow1 = <f32>(this.fButton0);
         this.fSlow2 = <f32>(this.fHslider1);
         this.fSlow3 = (0.6931471824645996 / Mathf.log(this.fSlow2));
-        this.fSlow4 = Mathf.pow(100.0, (<f32>(this.fHslider5) + -1.0));
-        this.fSlow5 = (this.fConst13 * this.fSlow2);
-        this.fSlow6 = Mathf.sin(this.fSlow5);
-        this.fSlow7 = Mathf.exp((3.047811508178711 - (0.9703809022903442 * Mathf.log((0.03852593153715134 * this.fSlow2)))));
-        this.fSlow8 = (1.0 - this.fSlow7);
-        this.fSlow9 = (this.fSlow7 + 1.0);
-        this.fSlow10 = Mathf.cos(this.fSlow5);
-        this.fSlow11 = (this.fConst12 * ((Mathf.atan((this.fSlow6 / ((this.fSlow8 / this.fSlow9) + this.fSlow10))) - Mathf.atan((this.fSlow6 / (this.fSlow10 + (this.fSlow9 / this.fSlow8))))) / this.fSlow2));
-        this.fSlow12 = (this.fConst13 * min<f32>(((<f32>(this.fHslider2) * <f32>(this.fHslider3)) * (Mathf.pow(this.fSlow2, 0.800000011920929) + 2500.0)), this.fConst14));
-        this.fSlow13 = Mathf.cos(this.fSlow12);
-        this.fSlow14 = (0.7071067690849304 * Mathf.sin(this.fSlow12));
-        this.fSlow15 = (this.fSlow14 + 1.0);
-        this.fSlow16 = ((1.0 - this.fSlow13) / this.fSlow15);
-        this.fSlow17 = (0.5 * this.fSlow16);
-        this.fSlow18 = (-2.0 * (this.fSlow13 / this.fSlow15));
-        this.fSlow19 = ((1.0 - this.fSlow14) / this.fSlow15);
-        this.fSlow20 = (-1.0 * this.fSlow5);
-        this.fSlow21 = Mathf.sin(this.fSlow20);
-        this.fSlow22 = (-1.0 * (this.fConst24 * this.fSlow2));
-        this.fSlow23 = Mathf.sin(this.fSlow22);
-        this.fSlow24 = (this.fSlow21 + (0.5 * this.fSlow23));
-        this.fSlow25 = Mathf.cos(this.fSlow22);
-        this.fSlow26 = Mathf.cos(this.fSlow20);
-        this.fSlow27 = ((((this.fSlow25 * this.fConst26) - ((2.0 * this.fSlow26) * this.fConst22)) / this.fConst27) + 1.0);
-        this.fSlow28 = (this.fSlow26 + (0.5 * (this.fSlow25 + 1.0)));
-        this.fSlow29 = ((this.fSlow23 * this.fConst26) - ((2.0 * this.fSlow21) * this.fConst22));
-        this.fSlow30 = ((this.fSlow24 * this.fSlow27) - ((this.fSlow28 * this.fSlow29) / this.fConst27));
-        this.fSlow31 = (Mathf.pow(this.fSlow27, 2.0) + (Mathf.pow(this.fSlow29, 2.0) / this.fConst28));
-        this.fSlow32 = (this.fConst27 * this.fSlow31);
-        this.fSlow33 = ((this.fSlow27 * this.fSlow28) + (this.fSlow24 * (this.fSlow29 / this.fConst27)));
-        this.fSlow34 = ((this.fConst0 / this.fSlow2) * ((0.15915493667125702 * Mathf.atan2(((this.fConst23 * this.fSlow30) / this.fSlow32), ((this.fConst23 * this.fSlow33) / this.fSlow32))) + 1.0));
-        this.fSlow35 = Mathf.pow((0.20000000298023224 / Mathf.sqrt(((this.fConst29 * (Mathf.pow(this.fSlow33, 2.0) + Mathf.pow(this.fSlow30, 2.0))) / (this.fConst28 * Mathf.pow(this.fSlow31, 2.0))))), (1.0099999904632568 / this.fSlow2));
+        this.fSlow4 = Mathf.pow(100.0, (<f32>(this.fHslider6) + -1.0));
+        this.fSlow5 = (this.fConst12 * min<f32>(((<f32>(this.fHslider2) * <f32>(this.fHslider3)) * (Mathf.pow(this.fSlow2, 0.800000011920929) + 2500.0)), this.fConst13));
+        this.fSlow6 = Mathf.cos(this.fSlow5);
+        this.fSlow7 = (0.7071067690849304 * Mathf.sin(this.fSlow5));
+        this.fSlow8 = (this.fSlow7 + 1.0);
+        this.fSlow9 = ((1.0 - this.fSlow6) / this.fSlow8);
+        this.fSlow10 = (0.5 * this.fSlow9);
+        this.fSlow11 = (-2.0 * (this.fSlow6 / this.fSlow8));
+        this.fSlow12 = ((1.0 - this.fSlow7) / this.fSlow8);
+        this.fSlow13 = (this.fConst12 * this.fSlow2);
+        this.fSlow14 = Mathf.sin(this.fSlow13);
+        this.fSlow15 = Mathf.log(max<f32>((0.000029999999242136255 * <f32>(this.fHslider5)), 0.0000009999999974752427));
+        this.fSlow16 = Mathf.exp((Mathf.exp(((0.08087892085313797 * this.fSlow15) + 1.9567221403121948)) - (17.312339782714844 * (Mathf.log((0.03852593153715134 * this.fSlow2)) * Mathf.exp((-1.0 * ((this.fSlow15 * ((0.0017900000093504786 * this.fSlow15) + 0.02329999953508377)) + 2.930000066757202)))))));
+        this.fSlow17 = (1.0 - this.fSlow16);
+        this.fSlow18 = (this.fSlow16 + 1.0);
+        this.fSlow19 = Mathf.cos(this.fSlow13);
+        this.fSlow20 = (this.fConst20 * ((Mathf.atan((this.fSlow14 / ((this.fSlow17 / this.fSlow18) + this.fSlow19))) - Mathf.atan((this.fSlow14 / (this.fSlow19 + (this.fSlow18 / this.fSlow17))))) / this.fSlow2));
+        this.fSlow21 = (-1.0 * this.fSlow13);
+        this.fSlow22 = Mathf.sin(this.fSlow21);
+        this.fSlow23 = (-1.0 * (this.fConst24 * this.fSlow2));
+        this.fSlow24 = Mathf.sin(this.fSlow23);
+        this.fSlow25 = (this.fSlow22 + (0.5 * this.fSlow24));
+        this.fSlow26 = Mathf.cos(this.fSlow23);
+        this.fSlow27 = Mathf.cos(this.fSlow21);
+        this.fSlow28 = ((((this.fSlow26 * this.fConst26) - ((2.0 * this.fSlow27) * this.fConst22)) / this.fConst27) + 1.0);
+        this.fSlow29 = (this.fSlow27 + (0.5 * (this.fSlow26 + 1.0)));
+        this.fSlow30 = ((this.fSlow24 * this.fConst26) - ((2.0 * this.fSlow22) * this.fConst22));
+        this.fSlow31 = ((this.fSlow25 * this.fSlow28) - ((this.fSlow29 * this.fSlow30) / this.fConst27));
+        this.fSlow32 = (Mathf.pow(this.fSlow28, 2.0) + (Mathf.pow(this.fSlow30, 2.0) / this.fConst28));
+        this.fSlow33 = (this.fConst27 * this.fSlow32);
+        this.fSlow34 = ((this.fSlow28 * this.fSlow29) + (this.fSlow25 * (this.fSlow30 / this.fConst27)));
+        this.fSlow35 = ((this.fConst0 / this.fSlow2) * ((0.15915493667125702 * Mathf.atan2(((this.fConst23 * this.fSlow31) / this.fSlow33), ((this.fConst23 * this.fSlow34) / this.fSlow33))) + 1.0));
+        this.fSlow36 = Mathf.pow((0.20000000298023224 / Mathf.sqrt(((this.fConst29 * (Mathf.pow(this.fSlow34, 2.0) + Mathf.pow(this.fSlow31, 2.0))) / (this.fConst28 * Mathf.pow(this.fSlow32, 2.0))))), (1.0099999904632568 / this.fSlow2));
     }
     frame(inputs: StaticArray<f32>, outputs: StaticArray<f32>): void {
         unchecked(this.fVec7[<i32>(0)] = this.fSlow0);
@@ -805,8 +810,8 @@ export class MpianoDsp {
         let iTemp0: i32 = (this.fSlow0 > fTemp0);
         let fRecCur1: f32 = (iTemp0 ? this.fSlow2 : this.fRec1);
         let fTemp1: f32 = unchecked(this.fRec4[<i32>(1)]);
-        unchecked(this.fVec113[<i32>(0)] = this.fSlow1);
-        let fTemp2: f32 = unchecked(this.fVec113[<i32>(1)]);
+        unchecked(this.fVec134[<i32>(0)] = this.fSlow1);
+        let fTemp2: f32 = unchecked(this.fVec134[<i32>(1)]);
         let iTemp1: i32 = (this.fSlow1 > fTemp2);
         let iTemp2: i32 = (<i32>(1) - iTemp1);
         let fTemp3: f32 = <f32>(iTemp2);
@@ -830,10 +835,10 @@ export class MpianoDsp {
         let fTemp11: f32 = unchecked(this.fRec5_2[<i32>(1)]);
         let fRecCur14: f32 = (iTemp1 ? 1.0 : (0.9998999834060669 * this.fRec14));
         let fRecCur15: f32 = (iTemp1 ? this.fSlow3 : this.fRec15);
-        let fRecCur16: f32 = (iTemp1 ? this.fSlow17 : this.fRec16);
-        let fRecCur17: f32 = (iTemp1 ? this.fSlow16 : this.fRec17);
-        let fRecCur18: f32 = (iTemp1 ? this.fSlow18 : this.fRec18);
-        let fRecCur19: f32 = (iTemp1 ? this.fSlow19 : this.fRec19);
+        let fRecCur16: f32 = (iTemp1 ? this.fSlow10 : this.fRec16);
+        let fRecCur17: f32 = (iTemp1 ? this.fSlow9 : this.fRec17);
+        let fRecCur18: f32 = (iTemp1 ? this.fSlow11 : this.fRec18);
+        let fRecCur19: f32 = (iTemp1 ? this.fSlow12 : this.fRec19);
         let fRecBody48: f32 = (0.00000000023283064365386963 * (fTemp7 / fTemp8));
         let fRecBody49: f32 = (fTemp1 * fTemp3);
         let fRecBody50: f32 = ((0.00000000023283064365386963 * ((fTemp7 * fRecCur16) / fTemp8)) + (fTemp3 * (((fTemp1 * fRecCur17) + (unchecked(this.fRec4_1[<i32>(1)]) * fRecCur16)) - ((fTemp9 * fRecCur18) + (unchecked(this.fRec4_3[<i32>(1)]) * fRecCur19)))));
@@ -846,19 +851,19 @@ export class MpianoDsp {
         let fTemp12: f32 = <f32>((iRecCur20 >= this.iConst0));
         let iTemp12: i32 = ((this.fIOTA - (this.iConst1 + <i32>(1))) & <i32>(511));
         let fTemp13: f32 = (fTemp12 * unchecked(this.fRec3[iTemp12]));
-        unchecked(this.fVec22780[<i32>(0)] = fTemp13);
-        let fRecCur21: f32 = (iTemp1 ? (this.fConst10 * (fTemp13 / this.fConst11)) : ((this.fConst10 * ((fTemp13 - this.fRec21) / this.fConst11)) + unchecked(this.fVec22780[<i32>(1)])));
+        unchecked(this.fVec22828[<i32>(0)] = fTemp13);
+        let fRecCur21: f32 = (iTemp1 ? (this.fConst10 * (fTemp13 / this.fConst11)) : ((this.fConst10 * ((fTemp13 - this.fRec21) / this.fConst11)) + unchecked(this.fVec22828[<i32>(1)])));
         let fRecBody52: f32 = fRecCur21;
         let fRecBody53: f32 = (fTemp3 * fTemp10);
-        let fRecBody54: f32 = (((this.fConst17 * ((0.5 * fRecCur21) + (fTemp3 * ((0.5 * unchecked(this.fRec5_1[<i32>(1)])) - fTemp10)))) + (fTemp3 * ((2.0 * (fTemp11 * this.fConst16)) - (unchecked(this.fRec5_3[<i32>(1)]) * this.fConst19)))) / this.fConst20);
+        let fRecBody54: f32 = (((this.fConst16 * ((0.5 * fRecCur21) + (fTemp3 * ((0.5 * unchecked(this.fRec5_1[<i32>(1)])) - fTemp10)))) + (fTemp3 * ((2.0 * (fTemp11 * this.fConst15)) - (unchecked(this.fRec5_3[<i32>(1)]) * this.fConst18)))) / this.fConst19);
         let fRecBody55: f32 = (fTemp3 * fTemp11);
         unchecked(this.fRec5[<i32>(0)] = fRecBody52);
         unchecked(this.fRec5_1[<i32>(0)] = fRecBody53);
         unchecked(this.fRec5_2[<i32>(0)] = fRecBody54);
         unchecked(this.fRec5_3[<i32>(0)] = fRecBody55);
         let fTemp14: f32 = ((fRecCur15 * unchecked(this.fRec4_2[<i32>(0)])) + unchecked(this.fRec5_2[<i32>(0)]));
-        unchecked(this.fVec22813[<i32>(0)] = fTemp14);
-        let fRecCur22: f32 = (iTemp1 ? (this.fConst7 * (fTemp14 / this.fConst8)) : ((this.fConst7 * ((fTemp14 - this.fRec22) / this.fConst8)) + unchecked(this.fVec22813[<i32>(1)])));
+        unchecked(this.fVec22861[<i32>(0)] = fTemp14);
+        let fRecCur22: f32 = (iTemp1 ? (this.fConst7 * (fTemp14 / this.fConst8)) : ((this.fConst7 * ((fTemp14 - this.fRec22) / this.fConst8)) + unchecked(this.fVec22861[<i32>(1)])));
         let fRecCur23: f32 = (iTemp1 ? (this.fConst7 * (fRecCur22 / this.fConst8)) : ((this.fConst7 * ((fRecCur22 - this.fRec23) / this.fConst8)) + this.fRec22));
         let fRecCur24: f32 = (iTemp1 ? (this.fConst7 * (fRecCur23 / this.fConst8)) : ((this.fConst7 * ((fRecCur23 - this.fRec24) / this.fConst8)) + this.fRec23));
         let fRecCur25: f32 = (iTemp1 ? (this.fConst7 * (fRecCur24 / this.fConst8)) : ((this.fConst7 * ((fRecCur24 - this.fRec25) / this.fConst8)) + this.fRec24));
@@ -957,19 +962,19 @@ export class MpianoDsp {
         unchecked(this.fRec9_2[<i32>(0)] = fRecBody60);
         unchecked(this.fRec9_3[<i32>(0)] = fRecBody61);
         let fTemp23: f32 = (fTemp12 * unchecked(this.fRec8[iTemp12]));
-        unchecked(this.fVec23803[<i32>(0)] = fTemp23);
-        let fRecCur97: f32 = (iTemp1 ? (this.fConst10 * (fTemp23 / this.fConst11)) : ((this.fConst10 * ((fTemp23 - this.fRec97) / this.fConst11)) + unchecked(this.fVec23803[<i32>(1)])));
+        unchecked(this.fVec23851[<i32>(0)] = fTemp23);
+        let fRecCur97: f32 = (iTemp1 ? (this.fConst10 * (fTemp23 / this.fConst11)) : ((this.fConst10 * ((fTemp23 - this.fRec97) / this.fConst11)) + unchecked(this.fVec23851[<i32>(1)])));
         let fRecBody62: f32 = fRecCur97;
         let fRecBody63: f32 = (fTemp3 * fTemp21);
-        let fRecBody64: f32 = (((this.fConst17 * ((0.5 * fRecCur97) + (fTemp3 * ((0.5 * unchecked(this.fRec10_1[<i32>(1)])) - fTemp21)))) + (fTemp3 * ((2.0 * (fTemp22 * this.fConst16)) - (unchecked(this.fRec10_3[<i32>(1)]) * this.fConst19)))) / this.fConst20);
+        let fRecBody64: f32 = (((this.fConst16 * ((0.5 * fRecCur97) + (fTemp3 * ((0.5 * unchecked(this.fRec10_1[<i32>(1)])) - fTemp21)))) + (fTemp3 * ((2.0 * (fTemp22 * this.fConst15)) - (unchecked(this.fRec10_3[<i32>(1)]) * this.fConst18)))) / this.fConst19);
         let fRecBody65: f32 = (fTemp3 * fTemp22);
         unchecked(this.fRec10[<i32>(0)] = fRecBody62);
         unchecked(this.fRec10_1[<i32>(0)] = fRecBody63);
         unchecked(this.fRec10_2[<i32>(0)] = fRecBody64);
         unchecked(this.fRec10_3[<i32>(0)] = fRecBody65);
         let fTemp24: f32 = ((fRecCur15 * unchecked(this.fRec9_2[<i32>(0)])) + unchecked(this.fRec10_2[<i32>(0)]));
-        unchecked(this.fVec23836[<i32>(0)] = fTemp24);
-        let fRecCur98: f32 = (iTemp1 ? (this.fConst7 * (fTemp24 / this.fConst8)) : ((this.fConst7 * ((fTemp24 - this.fRec98) / this.fConst8)) + unchecked(this.fVec23836[<i32>(1)])));
+        unchecked(this.fVec23884[<i32>(0)] = fTemp24);
+        let fRecCur98: f32 = (iTemp1 ? (this.fConst7 * (fTemp24 / this.fConst8)) : ((this.fConst7 * ((fTemp24 - this.fRec98) / this.fConst8)) + unchecked(this.fVec23884[<i32>(1)])));
         let fRecCur99: f32 = (iTemp1 ? (this.fConst7 * (fRecCur98 / this.fConst8)) : ((this.fConst7 * ((fRecCur98 - this.fRec99) / this.fConst8)) + this.fRec98));
         let fRecCur100: f32 = (iTemp1 ? (this.fConst7 * (fRecCur99 / this.fConst8)) : ((this.fConst7 * ((fRecCur99 - this.fRec100) / this.fConst8)) + this.fRec99));
         let fRecCur101: f32 = (iTemp1 ? (this.fConst7 * (fRecCur100 / this.fConst8)) : ((this.fConst7 * ((fRecCur100 - this.fRec101) / this.fConst8)) + this.fRec100));
@@ -1054,10 +1059,10 @@ export class MpianoDsp {
         let fRecBody69: f32 = (iTemp4 ? (iTemp6 ? fTemp4 : fTemp6) : (iTemp5 ? fTemp5 : max<f32>(0.0, (fTemp4 - this.fConst5))));
         unchecked(this.iRec2[<i32>(0)] = iRecBody68);
         unchecked(this.fRec2_1[<i32>(0)] = fRecBody69);
-        let fRecCur173: f32 = (iTemp8 ? this.fSlow11 : this.fRec173);
+        let fRecCur173: f32 = (iTemp8 ? this.fSlow20 : this.fRec173);
         let fTemp27: f32 = (1.0 - fRecCur173);
         let fTemp28: f32 = (1.0 - fTemp2);
-        let fRecCur174: f32 = (iTemp8 ? (this.fSlow34 - (5.0 * fRecCur173)) : this.fRec174);
+        let fRecCur174: f32 = (iTemp8 ? (this.fSlow35 - (5.0 * fRecCur173)) : this.fRec174);
         let iTemp10: i32 = max<i32>(<i32>(1), <i32>(fRecCur174));
         let fTemp29: f32 = max<f32>(0.0, (fRecCur174 - <f32>(iTemp10)));
         let fTemp30: f32 = (1.0 - fTemp29);
@@ -1068,8 +1073,8 @@ export class MpianoDsp {
         let fTemp32: f32 = <f32>((iRecCur175 >= iTemp10));
         let fTemp33: f32 = (fTemp31 * fTemp32);
         let fTemp34: f32 = (fTemp29 + 1.0);
-        unchecked(this.fVec24827[<i32>(0)] = fTemp33);
-        let fRecCur176: f32 = (iTemp8 ? (((fTemp30 * fTemp31) * fTemp32) / fTemp34) : (((fTemp30 * (fTemp33 - this.fRec176)) / fTemp34) + unchecked(this.fVec24827[<i32>(1)])));
+        unchecked(this.fVec24900[<i32>(0)] = fTemp33);
+        let fRecCur176: f32 = (iTemp8 ? (((fTemp30 * fTemp31) * fTemp32) / fTemp34) : (((fTemp30 * (fTemp33 - this.fRec176)) / fTemp34) + unchecked(this.fVec24900[<i32>(1)])));
         let fRecBody70: f32 = fRecCur176;
         let fRecBody71: f32 = (fTemp15 * fTemp16);
         let fRecBody72: f32 = (((this.fConst23 * ((0.5 * fRecCur176) + (fTemp16 * (fTemp15 + (0.5 * unchecked(this.fRec6_1[<i32>(1)])))))) + (fTemp16 * ((2.0 * (fTemp17 * this.fConst22)) - (unchecked(this.fRec6_3[<i32>(1)]) * this.fConst26)))) / this.fConst27);
@@ -1080,14 +1085,14 @@ export class MpianoDsp {
         unchecked(this.fRec6_3[<i32>(0)] = fRecBody73);
         let fTemp35: f32 = ((fTemp28 * unchecked(this.fRec3_1[<i32>(1)])) + unchecked(this.fRec6_2[<i32>(0)]));
         let fTemp36: f32 = (fRecCur173 + 1.0);
-        unchecked(this.fVec24851[<i32>(0)] = fTemp35);
-        let fRecCur177: f32 = (iTemp8 ? ((fTemp27 * fTemp35) / fTemp36) : (((fTemp27 * (fTemp35 - this.fRec177)) / fTemp36) + unchecked(this.fVec24851[<i32>(1)])));
+        unchecked(this.fVec24924[<i32>(0)] = fTemp35);
+        let fRecCur177: f32 = (iTemp8 ? ((fTemp27 * fTemp35) / fTemp36) : (((fTemp27 * (fTemp35 - this.fRec177)) / fTemp36) + unchecked(this.fVec24924[<i32>(1)])));
         let fRecCur178: f32 = (iTemp8 ? ((fTemp27 * fRecCur177) / fTemp36) : (((fTemp27 * (fRecCur177 - this.fRec178)) / fTemp36) + this.fRec177));
         let fRecCur179: f32 = (iTemp8 ? ((fTemp27 * fRecCur178) / fTemp36) : (((fTemp27 * (fRecCur178 - this.fRec179)) / fTemp36) + this.fRec178));
         let fRecCur180: f32 = (iTemp8 ? ((fTemp27 * fRecCur179) / fTemp36) : (((fTemp27 * (fRecCur179 - this.fRec180)) / fTemp36) + this.fRec179));
         let fRecCur181: f32 = (iTemp8 ? ((fTemp27 * fRecCur180) / fTemp36) : (((fTemp27 * (fRecCur180 - this.fRec181)) / fTemp36) + this.fRec180));
         let fTemp37: f32 = (unchecked(this.fRec2_1[<i32>(0)]) * fRecCur181);
-        let fRecCur182: f32 = (iTemp8 ? this.fSlow35 : this.fRec182);
+        let fRecCur182: f32 = (iTemp8 ? this.fSlow36 : this.fRec182);
         let fTemp38: f32 = (1.0 - (this.fSlow4 * (1.0 - fRecCur182)));
         let fRecBody74: f32 = (fTemp37 * fTemp38);
         let fRecBody75: f32 = fTemp37;
@@ -1096,8 +1101,8 @@ export class MpianoDsp {
         unchecked(this.fRec0_1[<i32>(0)] = fRecBody75);
         let fTemp39: f32 = unchecked(this.fRec7[iTemp14]);
         let fTemp40: f32 = (fTemp32 * fTemp39);
-        unchecked(this.fVec24934[<i32>(0)] = fTemp40);
-        let fRecCur183: f32 = (iTemp8 ? (((fTemp30 * fTemp32) * fTemp39) / fTemp34) : (((fTemp30 * (fTemp40 - this.fRec183)) / fTemp34) + unchecked(this.fVec24934[<i32>(1)])));
+        unchecked(this.fVec25008[<i32>(0)] = fTemp40);
+        let fRecCur183: f32 = (iTemp8 ? (((fTemp30 * fTemp32) * fTemp39) / fTemp34) : (((fTemp30 * (fTemp40 - this.fRec183)) / fTemp34) + unchecked(this.fVec25008[<i32>(1)])));
         let fRecBody76: f32 = fRecCur183;
         let fRecBody77: f32 = (fTemp16 * fTemp25);
         let fRecBody78: f32 = (((this.fConst23 * ((0.5 * fRecCur183) + (fTemp16 * (fTemp25 + (0.5 * unchecked(this.fRec11_1[<i32>(1)])))))) + (fTemp16 * ((2.0 * (fTemp26 * this.fConst22)) - (unchecked(this.fRec11_3[<i32>(1)]) * this.fConst26)))) / this.fConst27);
@@ -1107,8 +1112,8 @@ export class MpianoDsp {
         unchecked(this.fRec11_2[<i32>(0)] = fRecBody78);
         unchecked(this.fRec11_3[<i32>(0)] = fRecBody79);
         let fTemp41: f32 = ((fTemp28 * unchecked(this.fRec8_1[<i32>(1)])) + unchecked(this.fRec11_2[<i32>(0)]));
-        unchecked(this.fVec24957[<i32>(0)] = fTemp41);
-        let fRecCur184: f32 = (iTemp8 ? ((fTemp27 * fTemp41) / fTemp36) : (((fTemp27 * (fTemp41 - this.fRec184)) / fTemp36) + unchecked(this.fVec24957[<i32>(1)])));
+        unchecked(this.fVec25031[<i32>(0)] = fTemp41);
+        let fRecCur184: f32 = (iTemp8 ? ((fTemp27 * fTemp41) / fTemp36) : (((fTemp27 * (fTemp41 - this.fRec184)) / fTemp36) + unchecked(this.fVec25031[<i32>(1)])));
         let fRecCur185: f32 = (iTemp8 ? ((fTemp27 * fRecCur184) / fTemp36) : (((fTemp27 * (fRecCur184 - this.fRec185)) / fTemp36) + this.fRec184));
         let fRecCur186: f32 = (iTemp8 ? ((fTemp27 * fRecCur185) / fTemp36) : (((fTemp27 * (fRecCur185 - this.fRec186)) / fTemp36) + this.fRec185));
         let fRecCur187: f32 = (iTemp8 ? ((fTemp27 * fRecCur186) / fTemp36) : (((fTemp27 * (fRecCur186 - this.fRec187)) / fTemp36) + this.fRec186));
@@ -1121,7 +1126,7 @@ export class MpianoDsp {
         outputs[<i32>(1)] = <f32>((4.0 * unchecked(this.fRec7_1[<i32>(0)])));
         unchecked(this.fVec7[<i32>(1)] = unchecked(this.fVec7[<i32>(0)]));
         this.fRec1 = fRecCur1;
-        unchecked(this.fVec113[<i32>(1)] = unchecked(this.fVec113[<i32>(0)]));
+        unchecked(this.fVec134[<i32>(1)] = unchecked(this.fVec134[<i32>(0)]));
         unchecked(this.iRec12[<i32>(1)] = unchecked(this.iRec12[<i32>(0)]));
         unchecked(this.iRec12_1[<i32>(1)] = unchecked(this.iRec12_1[<i32>(0)]));
         this.fRec13 = fRecCur13;
@@ -1136,13 +1141,13 @@ export class MpianoDsp {
         unchecked(this.fRec4_2[<i32>(1)] = unchecked(this.fRec4_2[<i32>(0)]));
         unchecked(this.fRec4_3[<i32>(1)] = unchecked(this.fRec4_3[<i32>(0)]));
         this.iRec20 = iRecCur20;
-        unchecked(this.fVec22780[<i32>(1)] = unchecked(this.fVec22780[<i32>(0)]));
+        unchecked(this.fVec22828[<i32>(1)] = unchecked(this.fVec22828[<i32>(0)]));
         this.fRec21 = fRecCur21;
         unchecked(this.fRec5[<i32>(1)] = unchecked(this.fRec5[<i32>(0)]));
         unchecked(this.fRec5_1[<i32>(1)] = unchecked(this.fRec5_1[<i32>(0)]));
         unchecked(this.fRec5_2[<i32>(1)] = unchecked(this.fRec5_2[<i32>(0)]));
         unchecked(this.fRec5_3[<i32>(1)] = unchecked(this.fRec5_3[<i32>(0)]));
-        unchecked(this.fVec22813[<i32>(1)] = unchecked(this.fVec22813[<i32>(0)]));
+        unchecked(this.fVec22861[<i32>(1)] = unchecked(this.fVec22861[<i32>(0)]));
         this.fRec22 = fRecCur22;
         this.fRec23 = fRecCur23;
         this.fRec24 = fRecCur24;
@@ -1223,13 +1228,13 @@ export class MpianoDsp {
         unchecked(this.fRec9_1[<i32>(1)] = unchecked(this.fRec9_1[<i32>(0)]));
         unchecked(this.fRec9_2[<i32>(1)] = unchecked(this.fRec9_2[<i32>(0)]));
         unchecked(this.fRec9_3[<i32>(1)] = unchecked(this.fRec9_3[<i32>(0)]));
-        unchecked(this.fVec23803[<i32>(1)] = unchecked(this.fVec23803[<i32>(0)]));
+        unchecked(this.fVec23851[<i32>(1)] = unchecked(this.fVec23851[<i32>(0)]));
         this.fRec97 = fRecCur97;
         unchecked(this.fRec10[<i32>(1)] = unchecked(this.fRec10[<i32>(0)]));
         unchecked(this.fRec10_1[<i32>(1)] = unchecked(this.fRec10_1[<i32>(0)]));
         unchecked(this.fRec10_2[<i32>(1)] = unchecked(this.fRec10_2[<i32>(0)]));
         unchecked(this.fRec10_3[<i32>(1)] = unchecked(this.fRec10_3[<i32>(0)]));
-        unchecked(this.fVec23836[<i32>(1)] = unchecked(this.fVec23836[<i32>(0)]));
+        unchecked(this.fVec23884[<i32>(1)] = unchecked(this.fVec23884[<i32>(0)]));
         this.fRec98 = fRecCur98;
         this.fRec99 = fRecCur99;
         this.fRec100 = fRecCur100;
@@ -1311,13 +1316,13 @@ export class MpianoDsp {
         this.fRec173 = fRecCur173;
         this.fRec174 = fRecCur174;
         this.iRec175 = iRecCur175;
-        unchecked(this.fVec24827[<i32>(1)] = unchecked(this.fVec24827[<i32>(0)]));
+        unchecked(this.fVec24900[<i32>(1)] = unchecked(this.fVec24900[<i32>(0)]));
         this.fRec176 = fRecCur176;
         unchecked(this.fRec6[<i32>(1)] = unchecked(this.fRec6[<i32>(0)]));
         unchecked(this.fRec6_1[<i32>(1)] = unchecked(this.fRec6_1[<i32>(0)]));
         unchecked(this.fRec6_2[<i32>(1)] = unchecked(this.fRec6_2[<i32>(0)]));
         unchecked(this.fRec6_3[<i32>(1)] = unchecked(this.fRec6_3[<i32>(0)]));
-        unchecked(this.fVec24851[<i32>(1)] = unchecked(this.fVec24851[<i32>(0)]));
+        unchecked(this.fVec24924[<i32>(1)] = unchecked(this.fVec24924[<i32>(0)]));
         this.fRec177 = fRecCur177;
         this.fRec178 = fRecCur178;
         this.fRec179 = fRecCur179;
@@ -1325,13 +1330,13 @@ export class MpianoDsp {
         this.fRec181 = fRecCur181;
         this.fRec182 = fRecCur182;
         unchecked(this.fRec0_1[<i32>(1)] = unchecked(this.fRec0_1[<i32>(0)]));
-        unchecked(this.fVec24934[<i32>(1)] = unchecked(this.fVec24934[<i32>(0)]));
+        unchecked(this.fVec25008[<i32>(1)] = unchecked(this.fVec25008[<i32>(0)]));
         this.fRec183 = fRecCur183;
         unchecked(this.fRec11[<i32>(1)] = unchecked(this.fRec11[<i32>(0)]));
         unchecked(this.fRec11_1[<i32>(1)] = unchecked(this.fRec11_1[<i32>(0)]));
         unchecked(this.fRec11_2[<i32>(1)] = unchecked(this.fRec11_2[<i32>(0)]));
         unchecked(this.fRec11_3[<i32>(1)] = unchecked(this.fRec11_3[<i32>(0)]));
-        unchecked(this.fVec24957[<i32>(1)] = unchecked(this.fVec24957[<i32>(0)]));
+        unchecked(this.fVec25031[<i32>(1)] = unchecked(this.fVec25031[<i32>(0)]));
         this.fRec184 = fRecCur184;
         this.fRec185 = fRecCur185;
         this.fRec186 = fRecCur186;
@@ -1361,7 +1366,8 @@ export class Mpiano extends MidiVoice {
     // Copy channel-level params into the DSP UI zones and refresh
     // control-rate state. Invoked from the channel when params change.
     applyParams(): void {
-        this.dsp.fHslider5 = this.typedChannel.damping;
+        this.dsp.fHslider6 = this.typedChannel.damping;
+        this.dsp.fHslider5 = this.typedChannel.dispersion;
         this.dsp.fHslider3 = this.typedChannel.hammerTone;
         this.dsp.control();
     }
@@ -1370,7 +1376,8 @@ export class Mpiano extends MidiVoice {
         super.noteon(note, velocity);
         this.dsp.fHslider1 = notefreq(note);
         this.dsp.fHslider2 = <f32>velocity / 127.0;
-        this.dsp.fHslider5 = this.typedChannel.damping;
+        this.dsp.fHslider6 = this.typedChannel.damping;
+        this.dsp.fHslider5 = this.typedChannel.dispersion;
         this.dsp.fHslider3 = this.typedChannel.hammerTone;
         this.dsp.fButton0 = 1.0;
         this.dsp.control();
@@ -3439,8 +3446,12 @@ export class MpianoChannel extends MidiChannel {
     /** damping [init: 1, min: 0.02, max: 2.56, step: 0.02] · CC 0 */
     get damping(): f32 { return this._damping; }
     set damping(value: f32) { this._damping = value; this._paramsDirty = true; }
+    private _dispersion: f32 = <f32>(1);
+    /** dispersion [init: 1, min: 0.02, max: 2.56, step: 0.02] · CC 1 */
+    get dispersion(): f32 { return this._dispersion; }
+    set dispersion(value: f32) { this._dispersion = value; this._paramsDirty = true; }
     private _hammerTone: f32 = <f32>(1);
-    /** hammer_tone [init: 1, min: 0.02, max: 2.56, step: 0.02] · CC 1 */
+    /** hammer_tone [init: 1, min: 0.02, max: 2.56, step: 0.02] · CC 2 */
     get hammerTone(): f32 { return this._hammerTone; }
     set hammerTone(value: f32) { this._hammerTone = value; this._paramsDirty = true; }
 
@@ -3479,6 +3490,9 @@ export class MpianoChannel extends MidiChannel {
                 this.damping = 0.02 + <f32>value / 127.0 * 2.54;
                 break;
             case 1:
+                this.dispersion = 0.02 + <f32>value / 127.0 * 2.54;
+                break;
+            case 2:
                 this.hammerTone = 0.02 + <f32>value / 127.0 * 2.54;
                 break;
         }
@@ -3493,8 +3507,10 @@ export function initializeMidiSynth(): void {
 
     // damping (CC 0, range: 0.02–2.56, default: 1)
     midichannels[0].controlchange(0, 49);
-    // hammer tone (CC 1, range: 0.02–2.56, default: 1)
+    // dispersion (CC 1, range: 0.02–2.56, default: 1)
     midichannels[0].controlchange(1, 49);
+    // hammer tone (CC 2, range: 0.02–2.56, default: 1)
+    midichannels[0].controlchange(2, 49);
 }
 
 export function postprocess(): void {
