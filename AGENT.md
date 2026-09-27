@@ -15,8 +15,9 @@ audience hears every change on its next pass. Aim for **a few seconds per reques
   song first, never retype recorded rows.
 - **Never design a new instrument on stage** (`design_instrument` takes minutes). The twelve
   voices below are the palette; reshape them with their CCs.
-- **Moving between parts is not an edit.** A part name or "next" typed in the panel jumps by
-  itself; `go_to_part` / `send_signal` do the same from your tools.
+- **Moving between parts is not an edit.** While the song plays, a part name or "next" typed in
+  the panel jumps by itself; `go_to_part` / `send_signal` do the same from your tools.
+  "Play it through" → `loopParts(false);` after `setBPM` (remove it to loop again).
 - **Do not touch** `faust/`, `shader.glsl`, the `addInstrument` lines and the track declarations
   at the top of `song.js`. In `synth.ts` only the channel volumes (`controlchange(7, …)`) change.
 
@@ -132,7 +133,7 @@ Every edit: the keeper spans the part exactly, layers are not awaited, the wait 
 `loopHere()` stays last. Compile after each change; if the part lengths in `song_summary` are
 not what was asked, you broke a length — fix it before answering.
 
-## Performance mode
+## Looping parts
 
 Each part ends in `waitForSignal('go', { loop: 'part', quantize: 'bar' })`: it loops until a
 signal, then leaves on the next bar line of *that part's* meter. A recompile while a part loops

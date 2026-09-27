@@ -25,7 +25,8 @@ It clones this repo, compiles and plays entirely in your browser:
 
 ## How it is played
 
-1. Tick **performance** next to the play control and press play: the `start` part loops.
+1. Before the show, type `/new` in the agent panel for a fresh conversation; press play: the
+   `start` part loops.
 2. Ask the studio agent for what comes next — "a metronome on the hi-hat", "a new part,
    8 bars of 3/4, called strings", "record strings here". `AGENT.md` is the agent's kit: the
    song's shape, the instruments, and a recipe for each of these.
@@ -37,7 +38,8 @@ It clones this repo, compiles and plays entirely in your browser:
 
 A part is always `setBeatsPerBar(3 or 4)`, `definePartStart(name)`, its layers, one awaited
 pattern that gives it its length, and a `waitForSignal('go', { loop: 'part', quantize: 'bar' })`.
-With the performance checkbox off, the waits are inert and the song plays straight through.
+`loopParts(false);` at the top of the song plays it straight through instead (to hear the
+whole arrangement); an export always plays straight through.
 
 ## The instruments
 
