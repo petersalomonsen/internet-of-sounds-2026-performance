@@ -37,6 +37,13 @@ const padsynth   = createTrack(11);
 // === PART "bassguitar" (2 bars of 4/4 = 8 beats) ===
 setBeatsPerBar(4);
 definePartStart('bassguitar');
+setVisual('uFloor', 1, 2);      // dancefloor fades up
+setVisual('uHero', 1, 2);       // hero steps into the spot
+setVisual('uCrowd', 0.45, 6);   // a few dancers around
+setVisual('uLights', 0.7, 4);   // disco rig up
+setVisual('uZoom', 0.35, 6);
+setVisual('uCamMove', 0.25, 6);
+setVisual('uItalo', 1);
 // padsynth.play([ [0, d3(7.95, 100)] ]);
 strings.play([
   [0,  d3(7.95, 95), a4(7.95, 95), f5(7.95, 95)],
@@ -63,6 +70,12 @@ await waitForSignal('go', { loop: 'part', quantize: 'bar' });
 // === PART "chords-bass" (8 bars of 4/4 = 32 beats) ===
 setBeatsPerBar(4);
 definePartStart('chords-bass');
+setVisual('uCrowd', 1, 8);      // full crowd revealed
+setVisual('uZoom', 1, 8);       // pull back to the whole group
+setVisual('uCamMove', 0.55, 8); // camera tours the floor
+setVisual('uLights', 1, 4);
+setVisual('uFloor', 1);
+setVisual('uHero', 1);
 strings.play([
   [0,  d3(7.95, 95), a4(7.95, 95), f5(7.95, 95)],
   [8,  f3(7.95, 95), c5(7.95, 95), a5(7.95, 95)],

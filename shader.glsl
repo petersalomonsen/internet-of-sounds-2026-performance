@@ -33,7 +33,7 @@ uniform float uOffKick;   // 0 = off .. 1 = extra arm move on the off-beat of ev
 uniform float uRunning;   // 0 = front-facing dance .. 1 = turned sideways doing the running man (finale)
 uniform float uEndPose;   // 0 = dancing .. 1 = frozen pose A .. 2 = frozen mirrored pose B (last two chords)
 
-const float BPM = 125.0;
+const float BPM = 90.0;
 const float HALFPI = 1.5707963;
 const float FIGSCALE = 0.8;     // world metres per local unit
 
