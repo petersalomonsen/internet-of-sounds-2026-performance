@@ -32,68 +32,97 @@ const bassguitar = createTrack(9);
 const brass      = createTrack(10);
 const padsynth   = createTrack(11);
 
-// ============ LAYERS — one function per instrument per part ============
+const pluck = [d2(0.24, 100), d2(0.24, 50), d3(0.24, 100), d2(0.24, 100)];   // one beat of 16ths
+function bassPluck() { return bassguitar.steps(4, pluck.repeat(15)); }   // 4 bars of 4/4
 
-// === PART "bassguitar" (2 bars of 4/4 = 8 beats) ===
+function takeRiff() { guitar.play([
+[ 0.07, g5(0.98, 78) ],
+[ 1.06, d5(1.28, 68) ],
+[ 1.60, a5(1.41, 83) ],
+[ 3.00, d5(0.24, 72) ],
+[ 3.27, a5(0.57, 72) ],
+[ 3.82, d5(0.18, 60) ],
+[ 4.07, g5(0.98, 78) ],
+[ 5.06, d5(1.28, 68) ],
+[ 5.60, a5(1.41, 83) ],
+[ 7.00, d5(0.24, 72) ],
+[ 7.27, a5(0.57, 72) ],
+[ 7.82, d5(0.18, 60) ],
+[ 8.07, g5(0.98, 78) ],
+[ 9.06, d5(1.28, 68) ],
+[ 9.60, a5(1.41, 83) ],
+[ 11.00, d5(0.24, 72) ],
+[ 11.27, a5(0.57, 72) ],
+[ 11.82, d5(0.18, 60) ],
+[ 12.07, g5(0.98, 78) ],
+[ 13.06, d5(1.28, 68) ],
+[ 13.60, a5(1.41, 83) ],
+[ 15.00, d5(0.24, 72) ],
+[ 15.27, a5(0.57, 72) ],
+[ 15.82, d5(0.18, 60) ],
+[ 16.07, g5(0.98, 78) ],
+[ 17.06, d5(1.28, 68) ],
+[ 17.60, a5(1.41, 83) ],
+[ 19.00, d5(0.24, 72) ],
+[ 19.27, a5(0.57, 72) ],
+[ 19.82, d5(0.18, 60) ],
+[ 20.07, g5(0.98, 78) ],
+[ 21.06, d5(1.28, 68) ],
+[ 21.60, a5(1.41, 83) ],
+[ 23.00, d5(0.24, 72) ],
+[ 23.27, a5(0.57, 72) ],
+[ 23.82, d5(0.18, 60) ],
+[ 24.07, g5(0.98, 78) ],
+[ 25.06, d5(1.28, 68) ],
+[ 25.60, a5(1.41, 83) ],
+[ 27.00, d5(0.24, 72) ],
+[ 27.27, a5(0.57, 72) ],
+[ 27.82, d5(0.18, 60) ],
+[ 28.07, g5(0.98, 78) ],
+[ 29.06, d5(1.28, 68) ],
+[ 29.60, a5(1.41, 83) ],
+[ 31.00, d5(0.24, 72) ],
+[ 31.27, a5(0.57, 72) ],
+[ 31.82, d5(0.18, 60) ]
+]); }
+const pump = (lo, hi) => [lo(0.24, 100), lo(0.24, 50), hi(0.24, 100), lo(0.24, 100)];   // one beat of 16ths
+function beat8() {   // 8 bars: kick on every beat, open hat on every off-beat
+  kick.steps(1, [c5(0.2, 110)].repeat(31));
+  hihat.steps(2, [ , gs5(0.1, 85) ].repeat(31));
+}
+function takeBass() { return bassguitar.steps(4, [...pump(d2, d3).repeat(7), ...pump(c2, c3).repeat(7), ...pump(as1, as2).repeat(7), ...pump(g1, g2).repeat(7)]); }
+
+// === PART "bass" (4 bars of 4/4) ===
 setBeatsPerBar(4);
-definePartStart('bassguitar');
-setVisual('uFloor', 1, 2);      // dancefloor fades up
-setVisual('uHero', 1, 2);       // hero steps into the spot
-setVisual('uCrowd', 0.45, 6);   // a few dancers around
-setVisual('uLights', 0.7, 4);   // disco rig up
-setVisual('uZoom', 0.35, 6);
-setVisual('uCamMove', 0.25, 6);
-setVisual('uItalo', 1);
-// padsynth.play([ [0, d3(7.95, 100)] ]);
-strings.play([
-  [0,  d3(7.95, 95), a4(7.95, 95), f5(7.95, 95)],
-  [8,  f3(7.95, 95), c5(7.95, 95), a5(7.95, 95)],
-  [16, c3(7.95, 95), g4(7.95, 95), e5(7.95, 95)],
-  [24, g3(7.95, 95), d5(7.95, 95), b5(7.95, 95)],
-]);
-// padsynth.play([
-//   [1, a5(1.95, 90), e6(1.95, 90)],
-//   [3, f5(1.95, 90), c6(1.95, 90)],
-//   [5, c5(1.95, 90), g5(1.95, 90)],
-// ]);
-snare.play([ [7, d5(0.2, 110)], [15, d5(0.2, 110)], [23, d5(0.2, 110)], [31, d5(0.2, 110)] ]);
-kick.steps(1, [ c5(0.2, 110) ].repeat(31));
-hihat.steps(4, [ null, fs5(0.1, 25), fs5(0.1, 100), fs5(0.1, 25) ].repeat(31));
-await bassguitar.steps(4, [
-  ...[ d2(0.2, 100), d2(0.2, 50), d3(0.2, 100), d2(0.2, 100) ].repeat(7),
-  ...[ f2(0.2, 100), f2(0.2, 50), f3(0.2, 100), f2(0.2, 100) ].repeat(7),
-  ...[ c2(0.2, 100), c2(0.2, 50), c3(0.2, 100), c2(0.2, 100) ].repeat(7),
-  ...[ g2(0.2, 100), g2(0.2, 50), g3(0.2, 100), g2(0.2, 100) ].repeat(7),
-]);
+definePartStart('bass');
+await bassPluck();
 await waitForSignal('go');
 
-// === PART "chords-bass" (8 bars of 4/4 = 32 beats) ===
+// === PART "take" (8 bars of 4/4) ===
 setBeatsPerBar(4);
-definePartStart('chords-bass');
-setVisual('uCrowd', 1, 8);      // full crowd revealed
-setVisual('uZoom', 1, 8);       // pull back to the whole group
-setVisual('uCamMove', 0.55, 8); // camera tours the floor
-setVisual('uLights', 1, 4);
-setVisual('uFloor', 1);
-setVisual('uHero', 1);
-strings.play([
-  [0,  d3(7.95, 95), a4(7.95, 95), f5(7.95, 95)],
-  [8,  f3(7.95, 95), c5(7.95, 95), a5(7.95, 95)],
-  [16, c3(7.95, 95), g4(7.95, 95), e5(7.95, 95)],
-  [24, g3(7.95, 95), d5(7.95, 95), b5(7.95, 95)],
-]);
-bass.play([
-  [0,  d2(7.95, 100)],
-  [8,  f2(7.95, 100)],
-  [16, c2(7.95, 100)],
-  [24, g2(7.95, 100)],
-]);
-drums.play([ [0, f5(0.3, 110)], [8, f5(0.3, 110)], [16, f5(0.3, 110)], [24, f5(0.3, 110)] ]);
-choir.play([ [0, d7(7.95, 95)], [8, c7(15.95, 95)], [24, d7(7.95, 95)] ]);
-drums.steps(1, [ cs6(0.3, 90) ].repeat(31));
-drums.steps(2, [ g5(0.2, 100), null, null, a5(0.2, 50), g5(0.2, 100), null, a5(0.2, 100), null ].repeat(7));
-await hihat.steps(1, new Array(32));
+definePartStart('take');
+createTrack(7).play([[ 1.01, a4(0.02, 63) ],
+[ 0.98, d3(7.99, 64) ],
+[ 1.03, d5(8.25, 44) ],
+[ 9.03, g4(7.70, 44) ],
+[ 9.05, c4(7.99, 42) ],
+[ 9.02, c5(8.18, 43) ],
+[ 17.08, f4(7.45, 54) ],
+[ 17.03, as3(7.95, 56) ],
+[ 17.04, as4(7.97, 56) ],
+[ 25.04, b4(6.04, 64) ],
+[ 25.02, g3(6.98, 42) ],
+[ 25.00, g4(7.00, 25) ],
+[ 31.09, a4(0.91, 54) ]]);
+
+startRecording();
+takeRiff();
+beat8();
+await takeBass();
+stopRecording();
 await waitForSignal('go');
 
 loopHere();
+
+
 

@@ -54,11 +54,11 @@ export function initializeMidiSynth(): void {
     midichannels[1].controlchange(2, 49);    // exciter tone - pluck noise low-pass (200 Hz)
 
     midichannels[2] = new MguitarChannel(6, (channel: MidiChannel) => new Mguitar(channel));      // amp + echo as channel effect
-    midichannels[2].controlchange(7, 20);    // volume
-    midichannels[2].controlchange(0, 49);    // bright - loop low-pass
-    midichannels[2].controlchange(1, 49);    // damping - lower rings longer
+    midichannels[2].controlchange(7, 15);    // volume
+    midichannels[2].controlchange(0, 40);    // bright - loop low-pass
+    midichannels[2].controlchange(1, 60);    // damping - lower rings longer
     midichannels[2].controlchange(2, 49);    // exciter tone (2000 Hz)
-    midichannels[2].controlchange(3, 49);    // amp drive (soft clip)
+    midichannels[2].controlchange(3, 59);    // amp drive (soft clip)
     midichannels[2].controlchange(4, 49);    // echo time (0.36 s)
     midichannels[2].controlchange(5, 49);    // echo send (1.4)
 
