@@ -65,7 +65,7 @@ await bassguitar.steps(4, [
   ...[ c2(0.2, 100), c2(0.2, 50), c3(0.2, 100), c2(0.2, 100) ].repeat(7),
   ...[ g2(0.2, 100), g2(0.2, 50), g3(0.2, 100), g2(0.2, 100) ].repeat(7),
 ]);
-await waitForSignal('go', { loop: 'part', quantize: 'bar' });
+await waitForSignal('go');
 
 // === PART "chords-bass" (8 bars of 4/4 = 32 beats) ===
 setBeatsPerBar(4);
@@ -93,7 +93,7 @@ choir.play([ [0, d7(7.95, 95)], [8, c7(15.95, 95)], [24, d7(7.95, 95)] ]);
 drums.steps(1, [ cs6(0.3, 90) ].repeat(31));
 drums.steps(2, [ g5(0.2, 100), null, null, a5(0.2, 50), g5(0.2, 100), null, a5(0.2, 100), null ].repeat(7));
 await hihat.steps(1, new Array(32));
-await waitForSignal('go', { loop: 'part', quantize: 'bar' });
+await waitForSignal('go');
 
 loopHere();
 
