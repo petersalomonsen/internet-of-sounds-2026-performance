@@ -63,13 +63,15 @@ export function initializeMidiSynth(): void {
     midichannels[2].controlchange(5, 49);    // echo send (1.4)
 
     midichannels[3] = new MpianoChannel(10, (channel: MidiChannel) => new Mpiano(channel));       // comb network as channel effect
-    midichannels[3].controlchange(7, 108);   // volume
-    midichannels[3].controlchange(0, 49);    // hammer tone - hammer low-pass
-    midichannels[3].controlchange(1, 49);    // damping - lower rings longer
-    midichannels[3].controlchange(2, 80);    // dispersion - string inharmonicity: higher = more metallic/detuned partials
+    midichannels[3].controlchange(7, 90);   // volume
+    midichannels[3].controlchange(0, 51);    // hammer tone - hammer low-pass
+    midichannels[3].controlchange(1, 50);    // damping - lower rings longer
+    midichannels[3].controlchange(2, 48);    // dispersion - string inharmonicity: higher = more metallic/detuned partials
+    midichannels[3].controlchange(3, 35);    // chorus amount - dry/wet (0 = bypass)
+    midichannels[3].controlchange(4, 17);    // chorus rate - LFO Hz
 
     midichannels[4] = new MfluteChannel(4, (channel: MidiChannel) => new Mflute(channel));        // echo as channel effect
-    midichannels[4].controlchange(7, 50);    // volume
+    midichannels[4].controlchange(7, 40);    // volume
     midichannels[4].controlchange(0, 49);    // bright - loop low-pass
     midichannels[4].controlchange(1, 49);    // breath tone - exciter low-pass (150 Hz)
     midichannels[4].controlchange(2, 49);    // echo time (0.36 s)
@@ -87,7 +89,7 @@ export function initializeMidiSynth(): void {
     midichannels[8] = new MchoirChannel(10, (channel: MidiChannel) => new Mchoir(channel));
     midichannels[8].controlchange(7, 40);    // volume
     midichannels[8].controlchange(0, 49);    // bright - loop low-pass
-    midichannels[8].controlchange(1, 49);    // breath tone - breath low-pass (2500 Hz)
+    midichannels[8].controlchange(1, 40);    // breath tone - breath low-pass (2500 Hz)
 
     midichannels[9] = new MidiChannel(4, (channel: MidiChannel) => new Bassguitar(channel));      // no tweak CCs
 
@@ -98,9 +100,9 @@ export function initializeMidiSynth(): void {
     midichannels[10].controlchange(2, 49);   // breath tone - exciter low-passes
 
     midichannels[11] = new MpadsynthChannel(15, (channel: MidiChannel) => new Mpadsynth(channel)); // gain + 4 kHz low-pass as channel effect
-    midichannels[11].controlchange(7, 74);   // volume
+    midichannels[11].controlchange(7, 55);   // volume
     midichannels[11].controlchange(0, 49);   // spread - detune step between the 9 oscillators (0.04 semitone)
-    midichannels[11].controlchange(1, 49);   // tone - channel low-pass (4 kHz)
+    midichannels[11].controlchange(1, 40);   // tone - channel low-pass (4 kHz)
 
     // Global reverb is the Zita-rev1 MASTER effect (one MasterverbChannel), driven over the
     // full mix in postprocess(). Disable the built-in Freeverb bus so the two don't stack:

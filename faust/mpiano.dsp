@@ -20,6 +20,10 @@ preroll = button("preroll");
 hammerTone = hslider("hammer_tone", 1, 0.02, 2.56, 0.02);  // hammer low-pass
 damping    = hslider("damping", 1, 0.02, 2.56, 0.02);      // string loss, exponential: lower rings longer
 dispScale  = hslider("dispersion", 1, 0.02, 2.56, 0.02);   // string inharmonicity: higher = more metallic/detuned partials
+// Declared AFTER the three above so the existing CC numbering (0 hammer_tone,
+// 1 damping, 2 dispersion) is untouched and these land on CC 3 and CC 4.
+chorusAmt  = hslider("chorus_amount", 0.24, 0, 1, 0.01);   // chorus dry/wet: 0 = bypass, default = slight width
+chorusRate = hslider("chorus_rate", 0.36, 0.02, 2.56, 0.02); // chorus LFO speed in Hz: low = slow drift
 
 env = adsr(0.001, 1.0, 1.0, 3.0, gate);
 ptrig = preroll > preroll';
@@ -77,7 +81,22 @@ process = side(0) * 4, side(1) * 4;
 // Channel effect (PianoChannel.preprocess): per side 42 one-sample combs
 // (feedback 0.21, damping 0.4) with 0.1% cross-feed, then the original's
 // 0.5e-15 make-down - the comb chain's gain is ~1e15 in the low end.
-effect = seq(i, 42, stage) : *(0.5e-15), *(0.5e-15)
+// ... then a gentle stereo chorus at the very END of the chain: a few ms
+// fractional delay per side, the two sides modulated by the SAME LFO in
+// opposite phase so the movement is width rather than pitch wobble, mixed in
+// dry/wet by chorus_amount (CC 3) at chorus_rate Hz (CC 4).
+chorus(l, r) = mixin(l, wl), mixin(r, wr)
+with {
+    msamp = ma.SR / 1000.0;
+    base  = 7.0 * msamp;   // ~7 ms centre delay
+    depth = 1.2 * msamp;   // +/- ~1.2 ms sweep
+    lfo = os.osc(chorusRate);
+    wl = de.fdelay(2048, base + depth * lfo, l);
+    wr = de.fdelay(2048, base - depth * lfo, r);
+    mixin(dry, wet) = dry * (1 - chorusAmt) + wet * chorusAmt;
+};
+
+effect = seq(i, 42, stage) : *(0.5e-15), *(0.5e-15) : chorus
 with {
     stage = st ~ (_, _, _, _) : (!, !, !, !, _, _)
     with {
