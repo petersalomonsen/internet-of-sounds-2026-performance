@@ -31,10 +31,13 @@ function bassLine() { bass.play([ /* ... */ ]); }            // (above the first
 // === PART "strings" (8 bars of 3/4) ===
 setBeatsPerBar(3);                       // the part's meter: 3 or 4 (always write it)
 definePartStart('strings');              // unique name — the performer jumps by it
+setVisual('uScene', 0);                  // the part's visual scene (see "Visual scenes") — always write it
 stringsTake();                           // layers: plain calls, NOT awaited
 bassLine();
 await hihat.steps(1, [gs5(0.1, 100), fs5(0.1, 55), fs5(0.1, 55)].repeat(7));   // ONE awaited beat-keeper = the part's length
 await waitForSignal('go');
+
+loopHere();                              // stays the last line of the song
 ```
 
 - A part is **bars × beats per bar** long: 8 bars of 3/4 = 24 beats, 4 bars of 4/4 = 16. The
@@ -42,6 +45,8 @@ await waitForSignal('go');
 - `.repeat(n)` makes **n + 1** copies: a one-bar pattern `.repeat(7)` is 8 bars.
 - A part with no beat yet keeps its length with rests: `await hihat.steps(1, new Array(24));`
 - New parts go **after the last part and before `loopHere();`**, which stays the last line.
+  An empty song (no part yet) gets its first part after the track declarations, followed by
+  `loopHere();`.
 - The tempo is `setBPM(90)` at the top, for the whole piece. Change it there only if asked
   (takes are placed by beat, so they follow the tempo).
 - After compiling, `song_summary` lists the parts in their own bars and meter — check a new
@@ -84,6 +89,21 @@ pad, jump pad and bass guitar. Track variables are declared at the top of `song.
 Note names: `c5` is MIDI 60 (middle C), `d2` is 26. CCs scale one original value: CC 49 is
 the original, CC 98 ≈ ×2, CC 25 ≈ ×½; `damping` is exponential (lower rings longer). String
 and loop tweaks apply from the next *new* note.
+
+## Visual scenes
+
+One shader, two scenes. Each part picks its scene with `setVisual('uScene', n)` right after
+`definePartStart(...)`, so `go_to_part` brings the visuals along. A third argument crossfades:
+`setVisual('uScene', 1, 2.0)` = two seconds.
+
+| n | scene | reacts to |
+|---|---|---|
+| 0 | 3D piano keyboard, c2–c7 | each sounding note dips and lights its key |
+| 1 | dancing crowd on a lit floor | note energy; the dance follows the tempo |
+
+Scene 1 has staging uniforms (`uCues`, `uCrowd`, `uLights`, …) described at the top of
+`shader.glsl`; use them only when asked. A new scene is added to the shader off stage, and to
+this table.
 
 ## Recipes
 
@@ -143,6 +163,9 @@ and loop tweaks apply from the next *new* note.
 - **"Brighter", "more echo", "longer ring"** on an instrument: at the start of the part
   `guitar.steps(1, [ controlchange(3, 98) ]);` (channel's CC from the table; 49 is the original).
   For the whole piece, put it in the first part.
+- **"Show the dancers" / "piano keys here" / "fade to …"**: change that part's
+  `setVisual('uScene', …)` line (add seconds as a third argument for a fade), compile. Never edit
+  the shader for this. A new part takes the scene of the part it follows unless asked otherwise.
 - **"Go to X" / "next" / "back to the start"**: `go_to_part` / `send_signal('go')`. Never edit.
 - **"Remove / clear this part"**: delete from its `// === PART` comment to its `waitForSignal`
   line (inclusive); never remove the last remaining part — empty it to rests instead.
