@@ -32,12 +32,26 @@ deltime  = max(2.0, ma.SR/freq - 1.0 - phasedel);
 // standing wave, so a retrigger's fresh noise burst stacked on top -> jump/click).
 // 0.975 combined with the loop-filter loss still rings ~2.5 s at d2 but decays,
 // and the loop is damped harder while the gate is down so repeats don't pile up.
-loopgain = (0.975*gate + 0.85*(1.0 - gate)) : si.smoo;
+// AMP ENV (click fix): a slew-limited gate that ramps from WHERE IT IS - linear
+// 4 ms up, 45 ms down - then rounded by a 1.5 ms one-pole so neither corner is a
+// step in slope. A same-note retrigger 7 ms after note-off (the allocator reuses
+// the still-releasing voice) just climbs back from ~0.85 instead of restarting.
+slew(att, rel, t) = t : (step ~ _) with {
+  step(y, x) = y + max(-1.0/(rel*ma.SR), min(1.0/(att*ma.SR), x - y));
+};
+ampenv = slew(0.004, 0.045, gate) : si.smooth(ba.tau2pole(0.0015));
+
+// VELOCITY (click fix): gain is a per-note field that jumps at note-on; on a
+// reused, still-sounding voice (d2 vel100 -> d2 vel50) that was a step in level.
+// Glide it over ~4 ms instead.
+gainS = gain : si.smooth(ba.tau2pole(0.004));
+
+// Once the note is fully released, open the loop (feedback 0) so the delay line
+// flushes to silence before the voice is reused at another pitch: a recycled
+// voice starts on an empty string instead of the old one at a new delay time.
+alive = (gate > 0.0) | (ampenv > 0.0005);
+loopgain = (0.975*gate + 0.85*(1.0 - gate)) : si.smoo : *(alive);
 
 string = exciter : (+ : onepole(loopfc)) ~ (*(loopgain) : de.fdelay4(MAXDEL, deltime));
 
-// AMP ENV: short but click-free - 5 ms attack, 45 ms release, so a retrigger
-// 167 ms apart always finds the envelope settled (and any release completed).
-ampenv = en.asr(0.005, 1.0, 0.045, gate);
-
-process = string * ampenv * gain * 11.0;
+process = string * ampenv * gainS * 11.0;
