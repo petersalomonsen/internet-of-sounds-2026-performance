@@ -64,10 +64,10 @@ export function initializeMidiSynth(): void {
 
     midichannels[3] = new MpianoChannel(10, (channel: MidiChannel) => new Mpiano(channel));       // comb network as channel effect
     midichannels[3].controlchange(7, 90);   // volume
-    midichannels[3].controlchange(0, 51);    // hammer tone - hammer low-pass
+    midichannels[3].controlchange(0, 50);    // hammer tone - hammer low-pass
     midichannels[3].controlchange(1, 50);    // damping - lower rings longer
-    midichannels[3].controlchange(2, 48);    // dispersion - string inharmonicity: higher = more metallic/detuned partials
-    midichannels[3].controlchange(3, 35);    // chorus amount - dry/wet (0 = bypass)
+    midichannels[3].controlchange(2, 60);    // dispersion - string inharmonicity: higher = more metallic/detuned partials
+    midichannels[3].controlchange(3, 45);    // chorus amount - dry/wet (0 = bypass)
     midichannels[3].controlchange(4, 17);    // chorus rate - LFO Hz
 
     midichannels[4] = new MfluteChannel(4, (channel: MidiChannel) => new Mflute(channel));        // echo as channel effect
