@@ -6,6 +6,12 @@ where the notes, the arrangement and the synth instruments (written in the
 [Faust](https://faust.grame.fr/) DSP language) are all *code* that compiles to WebAssembly
 and runs live in the page.
 
+🏆 **Best Music Award** at the 2026 IEEE International Workshop on the Musical Metaverse, part
+of the IEEE International Symposium on the Internet of Sounds (IS²), for *"Agentic
+Composition, Live: A Track Built by Conversation in a Browser"*.
+
+**[▶ Watch it on YouTube](https://youtu.be/KmjlzGetLDo)**
+
 The piece did not exist before the performance. It started from an **empty part** at
 90 BPM. I played takes on a MIDI keyboard and directed the in-browser studio agent to build
 the structure around them — "play the bass guitar on semi-quavers", "kick on every beat",
@@ -18,9 +24,10 @@ out of the sections we created here, and also take into account the evolution of
 song"*, then *"make it double as long, by playing all the sections twice"*. That is what
 `song.js` plays now — 74 bars, about 3:17.
 
-The instruments are physical models — waveguide strings, piano, flute, choir, drums —
-written in AssemblyScript for the 2022 song "monster is close" and ported to Faust for this
-piece (see [the instruments](#the-instruments)).
+The instruments are physical models — waveguide strings, piano, flute, choir, drums — that
+I wrote in AssemblyScript and have used on many of my tracks. These come from the song
+"The monster is close", and were ported to Faust for this piece (see
+[the instruments](#the-instruments)).
 
 ## ▶ Open it
 
@@ -79,20 +86,20 @@ always plays straight through.
 
 | ch | instrument | from |
 | --- | --- | --- |
-| 0 | waveguide drum kit (kick, snare, hats, four toms, cymbal) | "monster is close" |
-| 1 | waveguide bass | "monster is close" |
-| 2 | plucked guitar with its amp and echo | "monster is close" |
-| 3 | stiff-string piano with a hammer resonator | "monster is close" |
-| 4 | flute | "monster is close" |
+| 0 | waveguide drum kit (kick, snare, hats, four toms, cymbal) | "The monster is close" |
+| 1 | waveguide bass | "The monster is close" |
+| 2 | plucked guitar with its amp and echo | "The monster is close" |
+| 3 | stiff-string piano with a hammer resonator | "The monster is close" |
+| 4 | flute | "The monster is close" |
 | 5 | jump pad (stacked saws) | earlier kit |
 | 6 | warm pad | earlier kit |
-| 7 | bowed strings | "monster is close" |
-| 8 | choir | "monster is close" |
+| 7 | bowed strings | "The monster is close" |
+| 8 | choir | "The monster is close" |
 | 9 | Karplus-Strong bass guitar | Beach Drive |
-| 10 | brass | "monster is close" |
-| 11 | pad synth (wavetable) | "monster is close" |
+| 10 | brass | "The monster is close" |
+| 11 | pad synth (wavetable) | "The monster is close" |
 
-The "monster is close" instruments were written in AssemblyScript in 2022 and ported to
+The instruments from "The monster is close" were written in AssemblyScript and ported to
 Faust for this piece. Each port was checked against its original by driving both with the
 same deterministic exciter and comparing them sample by sample; they match to within
 0.1–0.3 dB. Details, and what differs by design, in
