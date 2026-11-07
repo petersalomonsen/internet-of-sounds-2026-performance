@@ -2,6 +2,7 @@
 // Every part is a `definePartStart`, its LAYER FUNCTIONS, ONE awaited beat-keeper
 // that spans it, and a `waitForSignal`. Comment out a layer line to drop it.
 setBPM(90);
+loopParts(false);   // play straight through (remove to loop each part again)
 
 addInstrument('mdrums');     // 0 — kit: c5 kick, d5 snare, fs5 hat, gs5 open hat, f5 g5 a5 b5 toms, cs6 cymbal
 addInstrument('mbass');      // 1
@@ -172,38 +173,146 @@ function padHold2() {   // G, D, Em, Bm — same voicing, middle note 2nd → 3r
   strings.steps(0.5, [a5(1.95, 100), b5(1.95, 100)].repeat(3));
 }   // one held root per bar
 
+// --- layers that retrace how the piece grew on stage ---
+function dPump() { bassguitar.steps(4, pump(d2, d3).repeat(15)); }   // the opening pluck, d only, 4 bars
+function warmPadD() {   // warm pad d4 + a6 held, middle note e5 → f5 every 2 beats
+  warmpad.steps(0.25, [[d4(15.95, 100), a6(15.95, 100)]]);
+  warmpad.steps(0.5, [e5(1.95, 100), f5(1.95, 100)].repeat(3));
+}
+function sceneKeys() {   // piano-keys scene, nothing else on screen
+  setVisual('uScene', 0); setVisual('uRunning', 0); setVisual('uStars', 0);
+  setVisual('uTextFx', 0); setVisual('uFadeOut', 0); hideText({ fade: 0.5 });
+}
+const fourKicks = () => kick.steps(1, [c5(0.2, 110)].repeat(15));
+const hats16 = () => hihat.steps(4, [null, fs5(0.1, 25), fs5(0.1, 100), fs5(0.1, 25)].repeat(15));
+const backbeat = () => snare.steps(1, [null, d5(0.2, 100)].repeat(7));
+const hatsFull = () => hihat.steps(4, [fs5(0.1, 90), fs5(0.1, 45), gs5(0.1, 80), null].repeat(15));   // closed on the beat, 16th after, open on the off-beat
+
+// === PART "intro" (4 bars of 4/4) — the bass guitar alone ===
+setBeatsPerBar(4);
+definePartStart('intro');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  sceneKeys();
+  dPump();
+  await hihat.steps(1, new Array(16));
+}
+await waitForSignal('go');
+
+// === PART "pad" (4 bars of 4/4) — warm pad on d ===
+setBeatsPerBar(4);
+definePartStart('pad');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  sceneKeys();
+  dPump();
+  warmPadD();
+  await hihat.steps(1, new Array(16));
+}
+await waitForSignal('go');
+
+// === PART "chords" (4 bars of 4/4) — strings Dm F Am G, bass follows ===
+setBeatsPerBar(4);
+definePartStart('chords');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  sceneKeys();
+  bassPump();
+  padHold();
+  await hihat.steps(1, new Array(16));
+}
+await waitForSignal('go');
+
+// === PART "kick" (4 bars of 4/4) — four on the floor enters ===
+setBeatsPerBar(4);
+definePartStart('kick');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  sceneKeys();
+  bassPump();
+  padHold();
+  await fourKicks();
+}
+await waitForSignal('go');
+
+// === PART "groove" (4 bars of 4/4) — hats and snare join ===
+setBeatsPerBar(4);
+definePartStart('groove');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  sceneKeys();
+  bassPump();
+  padHold();
+  hats16();
+  backbeat();
+  await fourKicks();
+}
+await waitForSignal('go');
+
 // === PART "bass" (4 bars of 4/4) ===
 setBeatsPerBar(4);
 definePartStart('bass');
-setVisual('uRunning', 0);
-hideText({ fade: 0.5 });
-setVisual('uTextFx', 0);
-setVisual('uStars', 0);
-setVisual('uFadeOut', 0);
-pianoTake();
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  setVisual('uRunning', 0);
+  hideText({ fade: 0.5 });
+  setVisual('uTextFx', 0);
+  setVisual('uStars', 0);
+  setVisual('uFadeOut', 0);
+  pianoTake();
 
 
-setVisual('uScene', 0);
-bassPump();
-padHold();
-hihat.steps(4, [null, fs5(0.1, 25), fs5(0.1, 100), fs5(0.1, 25)].repeat(15));   // e + a between the kicks
-snare.steps(1, [null, d5(0.2, 100)].repeat(7));   // backbeat on 2 and 4
-await kick.steps(1, [c5(0.2, 110)].repeat(15));   // four on the floor, 4 bars
+  setVisual('uScene', 0);
+  bassPump();
+  padHold();
+  hihat.steps(4, [null, fs5(0.1, 25), fs5(0.1, 100), fs5(0.1, 25)].repeat(15));   // e + a between the kicks
+  snare.steps(1, [null, d5(0.2, 100)].repeat(7));   // backbeat on 2 and 4
+  await kick.steps(1, [c5(0.2, 110)].repeat(15));   // four on the floor, 4 bars
+}
+await waitForSignal('go');
+
+// === PART "full-kick" (4 bars of 4/4) — G, held bass, kick + cymbal, guitar riff ===
+setBeatsPerBar(4);
+definePartStart('full-kick');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  setVisual('uScene', 1, 2.0);   // fade to the dancers
+  setVisual('uRunning', 0);
+  setVisual('uStars', 0);
+  setVisual('uTextFx', 0);
+  setVisual('uFadeOut', 0);
+  guitarRiff();
+  padHold2();
+  bassHold();
+  drums.steps(1, [cs6(0.2, 80)].repeat(15));
+  await fourKicks();
+}
+await waitForSignal('go');
+
+// === PART "full-beat" (4 bars of 4/4) — snare and hats back, running man ===
+setBeatsPerBar(4);
+definePartStart('full-beat');
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  setVisual('uScene', 1);
+  setVisual('uRunning', 1);
+  guitarRiff();
+  padHold2();
+  bassHold();
+  drums.steps(1, [cs6(0.2, 80)].repeat(15));
+  hatsFull();
+  backbeat();
+  await fourKicks();
+}
 await waitForSignal('go');
 
 // === PART "full" (4 bars of 4/4) ===
 setBeatsPerBar(4);
 definePartStart('full');
-setVisual('uScene', 1, 2.0);   // fade to the dancers
-setVisual('uRunning', 1);
-showText('Internet of Sounds', { fade: 1.0, size: 96 });
-setVisual('uTextFx', 1);
-setVisual('uStars', 1, 2.0);
-setVisual('uFadeOut', 0);
-guitarRiff();
-padHold2();
-bassHold();
-await drums.steps(1, [cs6(0.2, 80)].repeat(15));   // cymbal on every beat only
+for (let pass = 0; pass < 2; pass++) {   // the section plays twice
+  setVisual('uScene', 1, 2.0);   // fade to the dancers
+  setVisual('uRunning', 1);
+  showText('Internet of Sounds', { fade: 1.0, size: 96 });
+  setVisual('uTextFx', 1);
+  setVisual('uStars', 1, 2.0);
+  setVisual('uFadeOut', 0);
+  guitarRiff();
+  padHold2();
+  bassHold();
+  await drums.steps(1, [cs6(0.2, 80)].repeat(15));   // cymbal on every beat only
+}
 await waitForSignal('go');
 
 // === PART "ending" (2 bars of 4/4) — the song ends here, no loop ===
