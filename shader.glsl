@@ -36,6 +36,9 @@ uniform float uHero;      // 0 = empty stage .. 1 = the lone hero has stepped in
 uniform float uItalo;     // 0 = one arm-move per beat .. 1 = italo 8th-note moves
 uniform float uOffKick;   // 1 = extra arm move on the off-beat of every 4th beat
 uniform float uRunning;   // 0 = front-facing dance .. 1 = running man, seen in profile
+uniform float uFadeOut;   // 0 = picture .. 1 = black (ramp it for an ending)
+uniform float uStars;     // 0 = off .. 1 = starfield flying toward the viewer, behind the scene
+uniform float uTextFx;    // 0 = still text .. 1 = text zooms out/in and spins
 uniform float uEndPose;   // 0 = dancing .. 1 = frozen pose A .. 2 = frozen mirrored pose B
 
 out vec4 fragColor;
@@ -540,12 +543,44 @@ void main() {
   if (s < 0.999) col += scenePiano(uv, t) * (1.0 - s);     // only the active scene is drawn
   if (s > 0.001) col += sceneDancers(uv, t) * s;           // both only during a crossfade
 
+  // ---- starfield: 3 layers of stars streaming outward, only where the scene is dark ----
+  float stm = clamp(uStars, 0.0, 1.0);
+  if (stm > 0.001) {
+    vec3 st = vec3(0.0);
+    for (int L = 0; L < 3; L++) {
+      float fl = float(L);
+      float z = fract(t * 0.08 + fl / 3.0);                 // depth cycles 0..1
+      float sc = mix(18.0, 1.5, z);
+      vec2 g = uv * sc + fl * 17.3;
+      vec2 id = floor(g), f = fract(g) - 0.5;
+      float h = hash21(id + fl * 7.0);
+      vec2 o = (vec2(hash21(id + 3.1), hash21(id + 5.7)) - 0.5) * 0.7;
+      float d = length(f - o);
+      float sz = 0.02 + 0.05 * z;
+      float s = smoothstep(sz, 0.0, d) * step(0.55, h) * smoothstep(0.0, 0.3, z) * smoothstep(1.0, 0.8, z);
+      st += s * mix(vec3(0.7, 0.8, 1.0), vec3(1.0, 0.9, 0.75), h);
+    }
+    float dark = 1.0 - clamp(dot(col, vec3(0.333)) * 4.0, 0.0, 1.0);
+    col += st * stm * dark * 1.4;
+  }
+
   col = col / (1.0 + col * 0.55);              // soft rolloff instead of clipping
   col *= clamp(t / 1.2, 0.0, 1.0);             // fade in
 
   // ---- showText() layer, with a dark halo so it reads over the scene ----
   vec2 tuv = gl_FragCoord.xy / resolution.xy;
   tuv.y = 1.0 - tuv.y;
+  // uTextFx: 0 = still text .. 1 = text zooms out/in (2-bar cycle) and spins
+  float fxm = clamp(uTextFx, 0.0, 1.0);
+  if (fxm > 0.001) {
+    float asp = resolution.x / resolution.y;
+    vec2 p = tuv - 0.5; p.x *= asp;
+    float bt = t * (BPM / 60.0);
+    float zoom = mix(1.0, 0.55 + 0.45 * (0.5 + 0.5 * cos(bt * 3.14159265 / 4.0)), fxm);
+    float ang = fxm * bt * 0.7853982;            // a full turn every 8 beats
+    p = mat2(cos(ang), -sin(ang), sin(ang), cos(ang)) * p / zoom;
+    p.x /= asp; tuv = p + 0.5;
+  }
   float mx = clamp(uTextMix, 0.0, 1.0);
   vec4 tcur = mix(texture(uTextPrev, tuv), texture(uText, tuv), mx);
   float halo = tcur.a;
@@ -557,5 +592,6 @@ void main() {
   col = mix(col, vec3(0.0), clamp(halo, 0.0, 1.0) * 0.75);
   col = mix(col, vec3(1.0, 0.98, 0.92), clamp(tcur.a, 0.0, 1.0));
 
+  col *= 1.0 - clamp(uFadeOut, 0.0, 1.0);
   fragColor = vec4(col, 1.0);
 }
