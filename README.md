@@ -10,7 +10,8 @@ and runs live in the page.
 of the IEEE International Symposium on the Internet of Sounds (IS²), for *"Agentic
 Composition, Live: A Track Built by Conversation in a Browser"*.
 
-**[▶ Watch it on YouTube](https://youtu.be/KmjlzGetLDo)**
+**[▶ Watch it on YouTube](https://youtu.be/KmjlzGetLDo)** ·
+**[▶ The full performance, with subtitles](https://youtu.be/IK7cCM4BCMU)**
 
 The piece did not exist before the performance. It started from an **empty part** at
 90 BPM. I played takes on a MIDI keyboard and directed the in-browser studio agent to build
